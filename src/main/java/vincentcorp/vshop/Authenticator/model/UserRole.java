@@ -1,5 +1,6 @@
 package vincentcorp.vshop.Authenticator.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,10 +19,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserRole 
 {
+    public UserRole(Role role)
+    {
+        this.role = role;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
-    private String role;
+    @OneToOne(cascade = CascadeType.DETACH)
+    private Role role;
 }

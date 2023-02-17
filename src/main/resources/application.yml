@@ -1,0 +1,9 @@
+spring.cloud.vault:
+    token: hvs.CAESIGwdIXVc8RoOJyorMT1iQ9MUUB00RNgL6LMA9S3iqcP8Gh4KHGh2cy41REhiUHU1cUwxU21lMm16TkFlQXBGd04
+    host: 192.168.1.200
+    port: 8200
+    scheme: http
+    uri: http://192.168.1.200:8200
+    connection-timeout: 5000
+    read-timeout: 15000
+spring.config.import: vault://vshop/authenticator/dev

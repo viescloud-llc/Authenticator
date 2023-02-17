@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.util.LinkedMultiValueMap;
@@ -34,7 +35,7 @@ public class AuthenticationController
     @Autowired
     private UserService userService;
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", produces = "application/json")
     public ResponseEntity<String> login(@RequestBody User user)
     {
         user = this.userService.login(user);
@@ -42,20 +43,26 @@ public class AuthenticationController
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("Authorization", String.format("Bearer %s", jwt));
+
+        jwt = String.format("{\"jwt\":\"%s\"}", jwt);
         return new ResponseEntity<String>(jwt, map, 201);
     }
 
     @PostMapping("/any_authority")
-    public boolean hasAnyAuthority(@RequestHeader("Authorization") String jwt, @RequestBody List<String> roles)
+    public ResponseEntity<String> hasAnyAuthority(@RequestHeader("Authorization") String jwt, @RequestBody List<String> roles)
     {
         User user = this.jwtService.getUser(jwt);
-        return this.userService.hasAnyAuthority(user, roles);
+        boolean hasAuthority = this.userService.hasAnyAuthority(user, roles);
+        String body = String.format("{\"hasAuthority\":%s}", hasAuthority);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
     }
 
     @PostMapping("/all_authority")
-    public boolean hasAllAuthority(@RequestHeader("Authorization") String jwt, @RequestBody List<String> roles)
+    public ResponseEntity<String> hasAllAuthority(@RequestHeader("Authorization") String jwt, @RequestBody List<String> roles)
     {
         User user = this.jwtService.getUser(jwt);
-        return this.userService.hasAllAuthority(user, roles);
+        boolean hasAuthority = this.userService.hasAllAuthority(user, roles);
+        String body = String.format("{\"hasAuthority\":%s}", hasAuthority);
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
     }
 }

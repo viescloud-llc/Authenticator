@@ -51,7 +51,7 @@ public class UserController
         user = this.userService.createUser(user);
         return new ResponseEntity<User>(user, null, 201);
     }
-
+    
     @PutMapping
     public User modifyUser(@RequestBody User user)
     {
@@ -64,6 +64,4 @@ public class UserController
     {
         this.userService.deleteUser(id);
     }
-
-
 }

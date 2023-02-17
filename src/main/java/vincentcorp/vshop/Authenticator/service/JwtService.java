@@ -59,7 +59,16 @@ public class JwtService
 
     public void validateTokenExpiration(String jwt)
     {
-        boolean isExpired = this.jwtTokenUtil.isTokenExpired(jwt);
+        boolean isExpired;
+        try
+        {
+            isExpired = this.jwtTokenUtil.isTokenExpired(jwt);
+        }
+        catch(Exception ex)
+        {
+            isExpired = true;
+        }
+
         if(isExpired)
             HttpResponseThrowers.throwBadRequest("JWT token have been expired");
     }

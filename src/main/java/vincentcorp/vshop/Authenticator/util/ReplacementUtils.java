@@ -3,9 +3,12 @@ package vincentcorp.vshop.Authenticator.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import com.google.gson.Gson;
+
 
 public final class ReplacementUtils 
 {
+    public static final Gson gson = new Gson();
 
     /**
      * this method will replace all field value of original to target only if target field value is not null
@@ -56,5 +59,10 @@ public final class ReplacementUtils
                 return false;
         }
         return true;
+    }
+
+    public static boolean isEqual(Object object1, Object object2)
+    {
+        return ReplacementUtils.gson.toJson(object1).equals(ReplacementUtils.gson.toJson(object2));
     }
 }

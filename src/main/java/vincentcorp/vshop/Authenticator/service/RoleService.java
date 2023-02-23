@@ -7,9 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Example;
 
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.model.Role;
+import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 
 @Service
 public class RoleService
@@ -30,6 +32,18 @@ public class RoleService
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role ID not found");
 
         return role.get();
+    }
+
+    public List<Role> getAllByMatchAll(Role role)
+    {
+        Example<Role> example = (Example<Role>) ReflectionUtils.getMatchAllMatcher(role);
+        return this.roleDao.findAll(example);
+    }
+
+    public List<Role> getAllByMatchAny(Role role)
+    {
+        Example<Role> example = (Example<Role>) ReflectionUtils.getMatchAnyMatcher(role);
+        return this.roleDao.findAll(example);
     }
 
     public Role createRole(Role role)

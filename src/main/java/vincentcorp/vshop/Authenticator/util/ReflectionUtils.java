@@ -3,17 +3,20 @@ package vincentcorp.vshop.Authenticator.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
+
 import com.google.gson.Gson;
 
 
-public final class ReplacementUtils 
+public final class ReflectionUtils 
 {
     public static final Gson gson = new Gson();
 
     /**
      * this method will replace all field value of original to target only if target field value is not null
      * if origin and target are not the same class then return false
-     * @param original original object will be replace with target
+     * @param original original object will be replace with tartget
      * @param target 
      * @return true if replace is success else false
      */
@@ -34,8 +37,8 @@ public final class ReplacementUtils
 
                 // Object originalValue = originalFields[i].get(original);
                 Object targetValue = targetFields[i].get(target);
-
-                if(validAnotation(targetFields[i].getAnnotations()))
+                
+                if(validAnnotation(targetFields[i].getAnnotations()))
                     originalFields[i].set(original, targetValue);
 
                 originalFields[i].setAccessible(false);
@@ -76,7 +79,7 @@ public final class ReplacementUtils
                 // Object originalValue = originalFields[i].get(original);
                 Object targetValue = targetFields[i].get(target);
 
-                if(targetValue != null && validAnotation(targetFields[i].getAnnotations()))
+                if(targetValue != null && validAnnotation(targetFields[i].getAnnotations()))
                     originalFields[i].set(original, targetValue);
 
                 originalFields[i].setAccessible(false);
@@ -91,8 +94,8 @@ public final class ReplacementUtils
             return false;
         }
     }
-
-    private static boolean validAnotation(Annotation[] annotations)
+    
+    private static boolean validAnnotation(Annotation[] annotations)
     {
         for (Annotation annotation : annotations) 
         {
@@ -104,6 +107,64 @@ public final class ReplacementUtils
 
     public static boolean isEqual(Object object1, Object object2)
     {
-        return ReplacementUtils.gson.toJson(object1).equals(ReplacementUtils.gson.toJson(object2));
+        return ReflectionUtils.gson.toJson(object1).equals(ReflectionUtils.gson.toJson(object2));
+    }
+
+    public static Example<?> getMatchAllMatcher(Object object)
+    {
+        try
+        {
+            ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll();
+
+            Field[] fields = object.getClass().getDeclaredFields();
+
+            for (Field field : fields) 
+            {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                Object fieldValue = field.get(object);
+
+                if(fieldValue != null)
+                    customExampleMatcher.withMatcher(fieldName, ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+
+                field.setAccessible(false);
+            }
+
+            return Example.of(object, customExampleMatcher);
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Example<?> getMatchAnyMatcher(Object object)
+    {
+        try
+        {
+            ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAny();
+
+            Field[] fields = object.getClass().getDeclaredFields();
+
+            for (Field field : fields) 
+            {
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                Object fieldValue = field.get(object);
+
+                if(fieldValue != null)
+                    customExampleMatcher.withMatcher(fieldName, ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+
+                field.setAccessible(false);
+            }
+
+            return Example.of(object, customExampleMatcher);
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

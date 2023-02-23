@@ -1,5 +1,7 @@
 package vincentcorp.vshop.Authenticator.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.ws.rs.QueryParam;
 import vincentcorp.vshop.Authenticator.http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.service.JwtService;
@@ -31,6 +35,7 @@ public class UserController
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Get User from JWT token")
     @GetMapping
     public User getUser(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2)
     {
@@ -43,6 +48,7 @@ public class UserController
         return (User) HttpResponseThrowers.throwBadRequest("Invalid or missing jwt token");
     }
 
+    @Operation(summary = "Get User base on id in path variable")
     @GetMapping("{id}")
     public ResponseEntity<User> getById(@PathVariable("id") int id)
     {
@@ -61,9 +67,57 @@ public class UserController
             ex.printStackTrace();
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
 
+    @Operation(summary = "Get a list of all User that match all information base on query parameter")
+    @GetMapping("match_all")
+    public ResponseEntity<List<User>> matchAll(@QueryParam("user") User user)
+    {
+        try
+        {
+            List<User> users = this.userService.getAllByMatchAll(user);
+
+            if (users.isEmpty())
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        }
+        catch(ErrorResponseException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Operation(summary = "Get a list of all User that match any information base on query parameter")
+    @GetMapping("match_any")
+    public ResponseEntity<List<User>> matchAny(@QueryParam("user") User user)
+    {
+        try
+        {
+            List<User> users = this.userService.getAllByMatchAny(user);
+
+            if (users.isEmpty())
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        }
+        catch(ErrorResponseException ex)
+        {
+            throw ex;
+        }
+        catch (Exception ex)
+        {
+            ex.printStackTrace();
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     
+    @Operation(summary = "Create a new User")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<User> create(@RequestBody User user)
@@ -83,7 +137,8 @@ public class UserController
             return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
         }
     }
-    
+
+    @Operation(summary = "Modify an User base on id in path variable")
     @PutMapping("{id}")
     public ResponseEntity<User> update(@PathVariable("id") int id, @RequestBody User user)
     {
@@ -104,6 +159,7 @@ public class UserController
         }
     }
 
+    @Operation(summary = "Patch an User base on id in path variable")
     @PatchMapping("{id}")
     public ResponseEntity<User> patch(@PathVariable("id") int id, @RequestBody User user)
     {
@@ -124,6 +180,7 @@ public class UserController
         }
     }
 
+    @Operation(summary = "Delete an User base on id in path variable")
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<HttpStatus> delete(@PathVariable("id") int id)

@@ -30,6 +30,7 @@ public class AuthenticationController
     @Autowired
     private UserService userService;
 
+    
     @PostMapping(value = "/login", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<String> login(@RequestBody User user)

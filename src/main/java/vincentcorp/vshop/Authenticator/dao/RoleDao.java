@@ -17,7 +17,10 @@ public interface RoleDao extends JpaRepository<Role, Integer>
 	public List<Role> findAllByLevel(int level);
 
 	@Query(value = "select * from Role as role where role.name = :name and role.level = :level", nativeQuery = true)
-	public List<Role> getAllByMatch(@Param("name") String name, @Param("level") int level);
+	public List<Role> getAllByMatchAll(@Param("name") String name, @Param("level") int level);
+
+	@Query(value = "select * from Role as role where role.name = :name or role.level = :level", nativeQuery = true)
+	public List<Role> getAllByMatchAny(@Param("name") String name, @Param("level") int level);
 
 
 }

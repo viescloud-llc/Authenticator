@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
@@ -16,7 +17,7 @@ import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.UserRole;
 import vincentcorp.vshop.Authenticator.util.Constants;
-import vincentcorp.vshop.Authenticator.util.ReplacementUtils;
+import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
 
 @Service
@@ -47,6 +48,18 @@ public class UserService
         Optional<User> user = this.userDao.findById(id);
         
         return user.isPresent() ? user.get() : (User) HttpResponseThrowers.throwBadRequest("user ID not found");
+    }
+
+    public List<User> getAllByMatchAll(User user)
+    {
+        Example<User> example = (Example<User>) ReflectionUtils.getMatchAllMatcher(user);
+        return this.userDao.findAll(example);
+    }
+
+    public List<User> getAllByMatchAny(User user)
+    {
+        Example<User> example = (Example<User>) ReflectionUtils.getMatchAnyMatcher(user);
+        return this.userDao.findAll(example);
     }
 
     /**
@@ -103,7 +116,7 @@ public class UserService
         
         user.setPassword(null);
         
-        ReplacementUtils.replaceValue(oldUser, user);
+        ReflectionUtils.replaceValue(oldUser, user);
 
         validatePassword(oldUser, newPassword);
         validateUserRoles(oldUser);
@@ -121,7 +134,7 @@ public class UserService
         
         user.setPassword(null);
         
-        ReplacementUtils.patchValue(oldUser, user);
+        ReflectionUtils.patchValue(oldUser, user);
 
         validatePassword(oldUser, newPassword);
         validateUserRoles(oldUser);

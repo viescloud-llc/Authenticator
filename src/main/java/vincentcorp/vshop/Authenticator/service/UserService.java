@@ -95,15 +95,33 @@ public class UserService
         return user;
     }
 
-    public User modifyUser(User user)
+    public User modifyUser(int id, User user)
     {
-        User oldUser = this.getById(user.getId());
+        User oldUser = this.getById(id);
 
         String newPassword = user.getPassword();
         
         user.setPassword(null);
         
         ReplacementUtils.replaceValue(oldUser, user);
+
+        validatePassword(oldUser, newPassword);
+        validateUserRoles(oldUser);
+
+        oldUser = userDao.save(oldUser);
+
+        return oldUser;
+    }
+
+    public User patchUser(int id, User user)
+    {
+        User oldUser = this.getById(id);
+
+        String newPassword = user.getPassword();
+        
+        user.setPassword(null);
+        
+        ReplacementUtils.patchValue(oldUser, user);
 
         validatePassword(oldUser, newPassword);
         validateUserRoles(oldUser);

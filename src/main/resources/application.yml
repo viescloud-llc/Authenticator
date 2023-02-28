@@ -6,4 +6,4 @@ spring.cloud.vault:
     uri: http://192.168.1.200:8200
     connection-timeout: 5000
     read-timeout: 15000
-spring.config.import: vault://vshop/authenticator/dev
+spring.config.import: vault://vshop/authenticator/test

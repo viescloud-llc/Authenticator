@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,6 +36,6 @@ public class User
     @OneToOne(cascade = CascadeType.ALL)
     private UserProfile userProfile;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<UserRole> userRoles;
+    @ManyToMany(cascade = CascadeType.REFRESH)
+    private List<Role> userRoles;
 }

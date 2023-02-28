@@ -21,13 +21,13 @@ public class UserProfile
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
-    @Column
+    @Column(length = 100)
     private String firstName;
     
-    @Column
+    @Column(length = 100)
     private String lastName;
     
-    @Column
+    @Column(length = 20)
     private String phoneNumber;
     
     @Column
@@ -36,12 +36,12 @@ public class UserProfile
     @Column
     private String address;
     
-    @Column
+    @Column(length = 50)
     private String city;
     
-    @Column
+    @Column(length = 50)
     private String state;
     
-    @Column
+    @Column(length = 10)
     private String zip;
 }

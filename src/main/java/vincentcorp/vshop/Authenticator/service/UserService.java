@@ -15,7 +15,6 @@ import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
-import vincentcorp.vshop.Authenticator.model.UserRole;
 import vincentcorp.vshop.Authenticator.util.Constants;
 import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
@@ -97,11 +96,18 @@ public class UserService
     public User createUser(User user)
     {
         user.setPassword(sha256PasswordEncoder.encode(user.getPassword()));
-        List<UserRole> roles = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
         Role role = roleDao.findByName(Constants.NORMAL);
 
-        if(role != null)
-            roles.add(new UserRole(role));
+        if(role == null)
+        {
+            role = new Role();
+            role.setLevel(1);
+            role.setName(Constants.NORMAL);
+            role = this.roleDao.save(role);
+        }
+
+        roles.add(role);
 
         user.setUserRoles(roles);
         user = this.userDao.save(user);
@@ -112,14 +118,13 @@ public class UserService
     {
         User oldUser = this.getById(id);
 
-        String newPassword = user.getPassword();
-        
-        user.setPassword(null);
+        String newPassword = sha256PasswordEncoder.encode(user.getPassword());
         
         ReflectionUtils.replaceValue(oldUser, user);
 
-        validatePassword(oldUser, newPassword);
-        validateUserRoles(oldUser);
+        // validatePassword(oldUser, newPassword);
+
+        oldUser.setPassword(newPassword);
 
         oldUser = userDao.save(oldUser);
 
@@ -137,7 +142,6 @@ public class UserService
         ReflectionUtils.patchValue(oldUser, user);
 
         validatePassword(oldUser, newPassword);
-        validateUserRoles(oldUser);
 
         oldUser = userDao.save(oldUser);
 
@@ -153,25 +157,25 @@ public class UserService
         }
     }
 
-    private void validateUserRoles(User user)
-    {
-        List<Role> roles = this.roleDao.findAll();
-        List<UserRole> userRoles = user.getUserRoles();
-        List<UserRole> newUserRoles = new ArrayList<>();
+    // private void validateUserRoles(User user)
+    // {
+    //     List<Role> roles = this.roleDao.findAll();
+    //     List<Role> userRoles = user.getUserRoles();
+    //     List<Role> newUserRoles = new ArrayList<>();
 
-        userRoles.forEach(ur -> {
-            String roleName = ur.getRole().getName();
-            for(Role role : roles)
-            {
-                if(role.getName().equals(roleName))
-                {
-                    ur.setRole(role);
-                    newUserRoles.add(ur);
-                }
-            }
-        });
-        user.setUserRoles(newUserRoles);
-    }
+    //     userRoles.forEach(ur -> {
+    //         String roleName = ur.getName();
+    //         for(Role role : roles)
+    //         {
+    //             if(role.getName().equals(roleName))
+    //             {
+    //                 ur.setRole(role);
+    //                 newUserRoles.add(ur);
+    //             }
+    //         }
+    //     });
+    //     user.setUserRoles(newUserRoles);
+    // }
 
     public void deleteUser(int id)
     {
@@ -180,11 +184,11 @@ public class UserService
 
     public boolean hasAnyAuthority(User user, List<String> roles)
     {
-        return user.getUserRoles().parallelStream().anyMatch((ur) -> roles.parallelStream().anyMatch(r -> ur.getRole().getName().equals(r)));
+        return user.getUserRoles().parallelStream().anyMatch((ur) -> roles.parallelStream().anyMatch(r -> ur.getName().equals(r)));
     }
-
+    
     public boolean hasAllAuthority(User user, List<String> roles)
     {
-        return roles.stream().allMatch(r -> user.getUserRoles().parallelStream().anyMatch(ur -> ur.getRole().getName().equals(r)));
+        return roles.stream().allMatch(r -> user.getUserRoles().parallelStream().anyMatch(ur -> ur.getName().equals(r)));
     }
 }

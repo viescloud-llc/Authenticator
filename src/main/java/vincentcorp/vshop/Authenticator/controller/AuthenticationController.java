@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import vincentcorp.vshop.Authenticator.model.Jwt;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.UserService;
@@ -33,7 +33,7 @@ public class AuthenticationController
     
     @PostMapping(value = "/login", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> login(@RequestBody User user)
+    public ResponseEntity<Jwt> login(@RequestBody User user)
     {
         user = this.userService.login(user);
         String jwt = this.jwtService.generateJwtToken(user);
@@ -41,8 +41,7 @@ public class AuthenticationController
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("Authorization", String.format("Bearer %s", jwt));
 
-        jwt = String.format("{\"jwt\":\"%s\"}", jwt);
-        return new ResponseEntity<String>(jwt, map, 201);
+        return new ResponseEntity<Jwt>(new Jwt(jwt), map, 201);
     }
 
     @PostMapping("/any_authority")

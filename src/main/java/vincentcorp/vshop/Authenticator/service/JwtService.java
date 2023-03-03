@@ -1,20 +1,35 @@
 package vincentcorp.vshop.Authenticator.service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+
 import vincentcorp.vshop.Authenticator.dao.UserDao;
-import vincentcorp.vshop.Authenticator.http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.model.User;
+import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.JwtTokenUtil;
 
 @Service
 public class JwtService 
 {
+    public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.jwt";
+
+    // @Value("${spring.cache.redis.jwtTTL}")
+    private int jwtTTL = 1200;
+
+    @Autowired
+    private Gson gson;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
@@ -23,9 +38,22 @@ public class JwtService
 
     public String generateJwtToken(User user)
     {
-        return this.jwtTokenUtil.generateToken(user);
-    }
+        String jwt = this.jwtTokenUtil.generateToken(user);
 
+        try
+        {
+            String key = String.format("%s.%s", HASH_KEY, jwt);
+
+            this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(User.builder().id(user.getId()).build()), Duration.ofSeconds(jwtTTL));
+
+            return jwt;
+        }
+        catch(Exception ex)
+        {
+            return (String) HttpResponseThrowers.throwServerError("Server can't store JWT");
+        }
+    }
+    
     public User getUser(String jwt)
     {
         if(jwt.contains("Bearer"))
@@ -62,7 +90,12 @@ public class JwtService
         boolean isExpired;
         try
         {
-            isExpired = this.jwtTokenUtil.isTokenExpired(jwt);
+            // isExpired = this.jwtTokenUtil.isTokenExpired(jwt);
+            String key = String.format("%s.%s", HASH_KEY, jwt);
+
+            String object = this.redisTemplate.opsForValue().getAndExpire(key, Duration.ofSeconds(jwtTTL));
+
+            isExpired = object == null;
         }
         catch(Exception ex)
         {
@@ -70,6 +103,6 @@ public class JwtService
         }
 
         if(isExpired)
-            HttpResponseThrowers.throwBadRequest("JWT token have been expired");
+            HttpResponseThrowers.throwUnauthorized("JWT token is invalid or expired");
     }
 }

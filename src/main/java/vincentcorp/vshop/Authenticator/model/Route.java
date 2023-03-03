@@ -24,9 +24,12 @@ public class Route
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    
     @Column
     private String path;
+
+    @Column
+    private String method;
 
     @Column
     private boolean secure = false;

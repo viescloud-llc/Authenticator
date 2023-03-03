@@ -20,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.ws.rs.QueryParam;
-import vincentcorp.vshop.Authenticator.http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.UserService;
+import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
+import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @RestController
 @RequestMapping("/users")
@@ -64,7 +65,7 @@ public class UserController
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -88,7 +89,7 @@ public class UserController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -112,7 +113,7 @@ public class UserController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -133,7 +134,7 @@ public class UserController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
         }
     }
@@ -154,7 +155,7 @@ public class UserController
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -175,7 +176,7 @@ public class UserController
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -196,7 +197,7 @@ public class UserController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }

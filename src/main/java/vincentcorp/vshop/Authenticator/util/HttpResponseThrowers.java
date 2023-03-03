@@ -1,4 +1,4 @@
-package vincentcorp.vshop.Authenticator.http;
+package vincentcorp.vshop.Authenticator.util;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,4 +24,9 @@ public class HttpResponseThrowers
     {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, message);
     } 
+
+    public static Object throwNotFound(String message)
+    {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);
+    }
 }

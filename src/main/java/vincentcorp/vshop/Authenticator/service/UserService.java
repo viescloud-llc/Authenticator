@@ -3,33 +3,52 @@ package vincentcorp.vshop.Authenticator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.redis.core.RedisTemplate;
 
+import com.google.gson.Gson;
+
+import io.micrometer.common.util.StringUtils;
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
-import vincentcorp.vshop.Authenticator.http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.util.Constants;
+import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
+import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @Service
 public class UserService 
 {
+    public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.users";
+
+    // @Value("${spring.cache.redis.userTTL}")
+    private int userTTL = 600;
+
+    @Autowired
+    private Gson gson;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
     @Autowired
     private UserDao userDao;
 
     @Autowired
-    private Sha256PasswordEncoder sha256PasswordEncoder;
+    private RoleDao roleDao;
 
     @Autowired
-    private RoleDao roleDao;
+    private Sha256PasswordEncoder sha256PasswordEncoder;
 
     public List<User> getAll()
     {
@@ -44,9 +63,39 @@ public class UserService
 
     public User getById(int id)
     {
-        Optional<User> user = this.userDao.findById(id);
-        
-        return user.isPresent() ? user.get() : (User) HttpResponseThrowers.throwBadRequest("user ID not found");
+        //get from redis
+        String key = String.format("%s.%s", HASH_KEY, id);
+        try
+        {
+            String jsonUser = this.redisTemplate.opsForValue().get(key);
+            if(jsonUser != null)
+                return this.gson.fromJson(jsonUser, User.class);
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+        }
+
+        //get from database
+        Optional<User> oUser = this.userDao.findById(id);
+
+        if(oUser.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID not found");
+
+        User user = oUser.get();
+
+        //save to redis
+        try
+        {
+            this.redisTemplate.opsForValue().set(key, gson.toJson(user));
+            this.redisTemplate.expire(key, userTTL, TimeUnit.SECONDS);
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+        }
+
+        return user;
     }
 
     public List<User> getAllByMatchAll(User user)
@@ -128,6 +177,17 @@ public class UserService
 
         oldUser = userDao.save(oldUser);
 
+        //remove from redis
+        try
+        {
+            String key = String.format("%s.%s", HASH_KEY, id);
+            this.redisTemplate.delete(key);
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+        }
+
         return oldUser;
     }
 
@@ -144,6 +204,17 @@ public class UserService
         validatePassword(oldUser, newPassword);
 
         oldUser = userDao.save(oldUser);
+
+        //remove from redis
+        try
+        {
+            String key = String.format("%s.%s", HASH_KEY, id);
+            this.redisTemplate.delete(key);
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+        }
 
         return oldUser;
     }
@@ -179,7 +250,18 @@ public class UserService
 
     public void deleteUser(int id)
     {
-        try{this.userDao.deleteById(id);}catch(Exception ex) {}
+        this.userDao.deleteById(id);
+
+        //remove from redis
+        try
+        {
+            String key = String.format("%s.%s", HASH_KEY, id);
+            this.redisTemplate.delete(key);
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+        }
     }
 
     public boolean hasAnyAuthority(User user, List<String> roles)

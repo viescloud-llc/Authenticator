@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 import vincentcorp.vshop.Authenticator.model.Route;
 import vincentcorp.vshop.Authenticator.service.RouteService;
+import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @RestController
 @RequestMapping("/routes")
@@ -49,7 +50,7 @@ class RouteController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -70,7 +71,7 @@ class RouteController
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -94,7 +95,7 @@ class RouteController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -118,7 +119,7 @@ class RouteController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -139,7 +140,7 @@ class RouteController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
         }
     }
@@ -160,7 +161,7 @@ class RouteController
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -181,7 +182,7 @@ class RouteController
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -202,7 +203,7 @@ class RouteController
         }
         catch (Exception ex)
         {
-            ex.printStackTrace();
+            Splunk.logError(ex);
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
     }

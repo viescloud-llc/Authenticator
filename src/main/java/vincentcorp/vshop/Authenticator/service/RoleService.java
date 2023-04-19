@@ -1,5 +1,6 @@
 package vincentcorp.vshop.Authenticator.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -118,6 +119,25 @@ public class RoleService
         }
 
         return oldRole;
+    }
+
+    public List<Role> createDefaultRole() {
+        List<Role> roles = this.getAll();
+        List<Role> defaultRole = new ArrayList<>();
+        defaultRole.add(Role.builder().name("OWNER").level(99).build());
+        defaultRole.add(Role.builder().name("CO-OWNER").level(98).build());
+        defaultRole.add(Role.builder().name("GUEST").level(0).build());
+        defaultRole.add(Role.builder().name("NORMAL").level(1).build());
+        defaultRole.add(Role.builder().name("ADMIN").level(5).build());
+
+        defaultRole.stream().forEach(e1 -> {
+            if(!roles.parallelStream().anyMatch(e2 -> e2.getName().equals(e1.getName()) && e2.getLevel() == e1.getLevel()))
+            {
+                this.roleDao.save(e1);
+            }
+        });
+        
+        return this.getAll();
     }
 
     public Role patchRole(int id, Role role)

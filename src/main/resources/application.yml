@@ -1,5 +1,5 @@
 spring.cloud.vault:
-    token: hvs.CAESIGwdIXVc8RoOJyorMT1iQ9MUUB00RNgL6LMA9S3iqcP8Gh4KHGh2cy41REhiUHU1cUwxU21lMm16TkFlQXBGd04
+    token: hvs.CAESINiJJS_VEJbRgo4CqqxDFY-sOuOjoSQUDENEYNISsbIIGh4KHGh2cy5Ka05ON1praGU3aVFWdDNGYlhMTWluSjc
     host: 192.168.1.200
     port: 8200
     scheme: http

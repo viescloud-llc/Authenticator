@@ -166,6 +166,27 @@ class RouteController
         }
     }
 
+    @Operation(summary = "Modify an Route base on id in path variable")
+    @PutMapping("default/route")
+    public ResponseEntity<List<Route>> createDefaultRoute()
+    {
+        try
+        {
+            List<Route> routes = this.routeService.createDefaultRoute();
+
+            return new ResponseEntity<>(routes, HttpStatus.OK);
+        }
+        catch(ErrorResponseException ex)
+        {
+            throw ex;
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Operation(summary = "Patch an Route base on id in path variable")
     @PatchMapping("{id}")
     public ResponseEntity<Route> patch(@PathVariable("id") int id, @RequestBody Route route)

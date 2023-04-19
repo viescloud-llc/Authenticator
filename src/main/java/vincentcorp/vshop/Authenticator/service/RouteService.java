@@ -1,5 +1,6 @@
 package vincentcorp.vshop.Authenticator.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -116,6 +117,22 @@ public class RouteService
         }
 
         return oldRoute;
+    }
+
+    public List<Route> createDefaultRoute()
+    {
+        List<Route> routes = this.getAll();
+        List<Route> defaultRoutes = new ArrayList<>();
+        defaultRoutes.add(Route.builder().method("POST").path("authenticator/login").secure(false).build());
+
+        defaultRoutes.stream().forEach(e1 -> {
+            if(!routes.parallelStream().anyMatch(e2 -> e2.getMethod().equals(e1.getMethod()) && e2.getPath().equals(e1.getPath())))
+            {
+                this.routeDao.save(e1);
+            }
+        });
+        
+        return this.getAll();
     }
 
     public Route patchRoute(int id, Route route)

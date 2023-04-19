@@ -11,7 +11,7 @@
 	<groupId>vincentcorp.vshop</groupId>
 	<artifactId>Authenticator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>Authenticator</name>
 	<description>Authenticator</description>
 	<properties>

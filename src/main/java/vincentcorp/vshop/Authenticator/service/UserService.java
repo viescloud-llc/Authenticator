@@ -144,6 +144,9 @@ public class UserService
 
     public User createUser(User user)
     {
+        if(this.isUsernameExist(user.getUsername()))
+            HttpResponseThrowers.throwBadRequest("Username already exist");
+
         user.setPassword(sha256PasswordEncoder.encode(user.getPassword()));
         List<Role> roles = new ArrayList<>();
         Role role = roleDao.findByName(Constants.NORMAL);

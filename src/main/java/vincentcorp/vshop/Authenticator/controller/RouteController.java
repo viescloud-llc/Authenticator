@@ -166,7 +166,7 @@ class RouteController
         }
     }
 
-    @Operation(summary = "Modify an Route base on id in path variable")
+    @Operation(summary = "Create default routes")
     @PutMapping("default/route")
     public ResponseEntity<List<Route>> createDefaultRoute()
     {

@@ -31,7 +31,7 @@ public class AuthenticationController
     @Autowired
     private UserService userService;
 
-    @GetMapping("/login")
+    @GetMapping
     public void isLogin(@RequestHeader("Authorization") String jwt) {
         this.jwtService.isJwtExist(jwt);
     }

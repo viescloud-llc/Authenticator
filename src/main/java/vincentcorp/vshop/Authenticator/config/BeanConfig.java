@@ -20,18 +20,19 @@ import com.google.gson.Gson;
 @Configuration
 public class BeanConfig 
 {
-    @Bean
-    public WebMvcConfigurer CORSConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("*")
-                        .allowedHeaders("*")
-                        .allowedMethods("*");
-            }
-        };
-    }
+    // @Bean
+    // public WebMvcConfigurer CORSConfigurer() {
+    //     return new WebMvcConfigurer() {
+    //         @Override
+    //         public void addCorsMappings(CorsRegistry registry) {
+    //             registry.addMapping("/**")
+    //                     .allowedOrigins("*")
+    //                     .allowedHeaders("*")
+    //                     .allowedMethods("*");
+    //         }
+    //     };
+    // }
+
     @Bean
     public Gson gson()
     {

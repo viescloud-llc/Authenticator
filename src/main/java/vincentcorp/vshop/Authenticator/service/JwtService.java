@@ -8,9 +8,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import com.google.gson.Gson;
 
+import io.netty.util.internal.ObjectUtil;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
@@ -36,12 +38,38 @@ public class JwtService
     @Autowired
     private UserDao userDao;
 
-    public String generateJwtToken(User user)
-    {
-        String jwt = this.jwtTokenUtil.generateToken(user);
-
+    public void logout(String jwt) {
         try
         {
+            String key = String.format("%s.%s", HASH_KEY, jwt);
+
+            this.redisTemplate.opsForValue().getAndDelete(key);
+        }
+        catch(Exception ex)
+        {
+            HttpResponseThrowers.throwServerError("Redis is down?");
+        }
+    }
+
+    public boolean isJwtExist(String jwt) {
+        try
+        {
+            this.validateTokenExpiration(jwt);
+
+            return true;
+        }
+        catch(Exception ex)
+        {
+            return (boolean) HttpResponseThrowers.throwServerError("Redis is down?");
+        }
+    }
+
+    public String generateJwtToken(User user)
+    {
+        try
+        {
+            String jwt = this.jwtTokenUtil.generateToken(user);
+
             String key = String.format("%s.%s", HASH_KEY, jwt);
 
             this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(User.builder().id(user.getId()).build()), Duration.ofSeconds(jwtTTL));

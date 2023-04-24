@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.google.gson.Gson;
 
@@ -41,6 +42,9 @@ public class JwtService
     public void logout(String jwt) {
         try
         {
+            if(jwt.toLowerCase().contains("bearer"))
+                jwt = jwt.split(" ")[1];
+
             String key = String.format("%s.%s", HASH_KEY, jwt);
 
             this.redisTemplate.opsForValue().getAndDelete(key);
@@ -54,9 +58,16 @@ public class JwtService
     public boolean isJwtExist(String jwt) {
         try
         {
+            if(jwt.toLowerCase().contains("bearer"))
+                jwt = jwt.split(" ")[1];
+
             this.validateTokenExpiration(jwt);
 
             return true;
+        }
+        catch(ResponseStatusException ex)
+        {
+            throw ex;
         }
         catch(Exception ex)
         {
@@ -84,7 +95,7 @@ public class JwtService
     
     public User getUser(String jwt)
     {
-        if(jwt.contains("Bearer"))
+        if(jwt.toLowerCase().contains("bearer"))
             jwt = jwt.split(" ")[1];
             
         this.validateTokenExpiration(jwt);

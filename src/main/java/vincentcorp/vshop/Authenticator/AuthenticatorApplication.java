@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticatorApplication {
 
 	@Value("${spring.profiles.active}")
-	private String env = "dev";
+	private String env = "?";
 
 	public static void main(String[] args) {
 		SpringApplication.run(AuthenticatorApplication.class, args);

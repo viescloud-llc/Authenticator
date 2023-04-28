@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.ws.rs.QueryParam;
 import vincentcorp.vshop.Authenticator.model.User;
+import vincentcorp.vshop.Authenticator.model.response.UsernameExistResponse;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.UserService;
 import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
@@ -35,6 +36,27 @@ public class UserController
     
     @Autowired
     private UserService userService;
+
+    @Operation(summary = "Check if username already exist")
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UsernameExistResponse> checkValidUsername(@PathVariable("username") String username)
+    {
+        try
+        {
+            boolean exist = this.userService.isUsernameExist(username);
+
+            return new ResponseEntity<>(new UsernameExistResponse(exist), HttpStatus.OK);
+        }
+        catch(ErrorResponseException ex)
+        {
+            throw ex;
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @Operation(summary = "Get User from JWT token")
     @GetMapping

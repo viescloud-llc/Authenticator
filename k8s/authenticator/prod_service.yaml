@@ -6,9 +6,9 @@ metadata:
     app: authenticator-prod
 spec:
   type: LoadBalancer
-  loadBalancerIP: 192.168.1.104
+  loadBalancerIP: 10.24.24.104
   externalIPs:
-  - 192.168.1.104
+  - 10.24.24.104
   ports:
   - name: http
     port: 81 #local out port

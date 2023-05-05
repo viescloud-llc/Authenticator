@@ -16,6 +16,9 @@ public interface UserDao extends JpaRepository<User, Integer>
 	public User findByPassword(String password);
 	public List<User> findAllByPassword(String password);
 
+	public User findByEnable(boolean enable);
+	public List<User> findAllByEnable(boolean enable);
+
 	@Query(value = "select * from User as user where user.username = :username and user.password = :password", nativeQuery = true)
 	public List<User> getAllByMatchAll(@Param("username") String username, @Param("password") String password);
 

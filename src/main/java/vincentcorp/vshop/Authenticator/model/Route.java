@@ -33,6 +33,7 @@ public class Route
     @Column
     private String method;
 
+    @Builder.Default
     @Column
     private boolean secure = false;
 

@@ -170,7 +170,7 @@ public class UserService
     {
         User oldUser = this.getById(id);
 
-        if(this.isUsernameExist(user.getUsername()))
+        if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
 
         String newPassword = sha256PasswordEncoder.encode(user.getPassword());
@@ -201,7 +201,7 @@ public class UserService
     {
         User oldUser = this.getById(id);
 
-        if(this.isUsernameExist(user.getUsername()))
+        if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
 
         String newPassword = user.getPassword();

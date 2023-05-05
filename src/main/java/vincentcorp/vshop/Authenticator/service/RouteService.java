@@ -123,7 +123,8 @@ public class RouteService
     {
         List<Route> routes = this.getAll();
         List<Route> defaultRoutes = new ArrayList<>();
-        defaultRoutes.add(Route.builder().method("POST").path("authenticator/login").secure(false).build());
+        defaultRoutes.add(Route.builder().method("POST").path("authenticator/auth/login").secure(false).build());
+        defaultRoutes.add(Route.builder().method("POST").path("authenticator/users").secure(false).build());
 
         defaultRoutes.stream().forEach(e1 -> {
             if(!routes.parallelStream().anyMatch(e2 -> e2.getMethod().equals(e1.getMethod()) && e2.getPath().equals(e1.getPath())))

@@ -37,6 +37,27 @@ public class UserController
     @Autowired
     private UserService userService;
 
+    @Operation(summary = "Get All Users")
+    @GetMapping("all")
+    public ResponseEntity<List<User>> getUsers()
+    {
+        try
+        {
+            List<User> list = this.userService.getAll();
+
+            return new ResponseEntity<>(list, HttpStatus.OK);
+        }
+        catch(ErrorResponseException ex)
+        {
+            throw ex;
+        }
+        catch(Exception ex)
+        {
+            Splunk.logError(ex);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @Operation(summary = "Check if username already exist")
     @GetMapping("/username/{username}")
     public ResponseEntity<UsernameExistResponse> checkValidUsername(@PathVariable("username") String username)

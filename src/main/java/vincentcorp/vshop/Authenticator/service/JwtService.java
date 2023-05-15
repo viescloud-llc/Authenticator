@@ -8,12 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.google.gson.Gson;
 
-import io.netty.util.internal.ObjectUtil;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;

@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,6 +25,7 @@ import vincentcorp.vshop.Authenticator.util.Constants;
 import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
+import vincentcorp.vshop.Authenticator.util.Time;
 import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @Service
@@ -142,6 +144,9 @@ public class UserService
             HttpResponseThrowers.throwBadRequest("Invalid username or password");
 
         User nUser = oUser.get();
+        
+        if(this.checkUserExpire(nUser))
+            return (User) HttpResponseThrowers.throwForbidden("User is expire/lock, please contact administration");
 
         return nUser;
     }
@@ -241,26 +246,6 @@ public class UserService
         }
     }
 
-    // private void validateUserRoles(User user)
-    // {
-    //     List<Role> roles = this.roleDao.findAll();
-    //     List<Role> userRoles = user.getUserRoles();
-    //     List<Role> newUserRoles = new ArrayList<>();
-
-    //     userRoles.forEach(ur -> {
-    //         String roleName = ur.getName();
-    //         for(Role role : roles)
-    //         {
-    //             if(role.getName().equals(roleName))
-    //             {
-    //                 ur.setRole(role);
-    //                 newUserRoles.add(ur);
-    //             }
-    //         }
-    //     });
-    //     user.setUserRoles(newUserRoles);
-    // }
-
     public void deleteUser(int id)
     {
         this.userDao.deleteById(id);
@@ -285,5 +270,26 @@ public class UserService
     public boolean hasAllAuthority(User user, List<String> roles)
     {
         return roles.stream().allMatch(r -> user.getUserRoles().parallelStream().anyMatch(ur -> ur.getName().equals(r)));
+    }
+
+    public boolean checkUserExpire(User user) {
+        Time now = new Time();
+
+        if(user.isExpirable() && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().toTime().isBefore(now)) {
+            user.setEnable(false);
+            user.setExpireTime(null);
+            user.setExpirable(false);
+        }
+
+        if(!ObjectUtils.isEmpty(user.getUserApis()))
+            user.getUserApis().forEach(api -> {
+                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toTime().isBefore(now)) {
+                    api.setEnable(false);
+                    api.setExpireTime(null);
+                    api.setExpirable(false);
+                }
+            });
+
+        return user.isEnable();
     }
 }

@@ -46,7 +46,7 @@ public class UserExpireSchedule {
 
             try {
                 User user = f.get();
-                this.userService.patchUser(user.getId(), user);
+                this.userService.modifyUser(user.getId(), user);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
@@ -65,20 +65,21 @@ public class UserExpireSchedule {
         @Override
         public User call() throws Exception {
             Time now = new Time();
-
+            
             if(this.user.isExpirable() && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().toTime().isBefore(now)) {
                 this.user.setEnable(false);
                 this.user.setExpireTime(null);
                 this.user.setExpirable(false);
             }
 
-            this.user.getUserApis().forEach(api -> {
-                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toTime().isBefore(now)) {
-                    api.setEnable(false);
-                    api.setExpireTime(null);
-                    api.setExpirable(false);
-                }
-            });
+            if(!ObjectUtils.isEmpty(user.getUserApis()))
+                user.getUserApis().forEach(api -> {
+                    if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toTime().isBefore(now)) {
+                        api.setEnable(false);
+                        api.setExpireTime(null);
+                        api.setExpirable(false);
+                    }
+                });
 
             return this.user;
         }

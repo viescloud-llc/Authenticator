@@ -72,6 +72,14 @@ public class UserExpireSchedule {
                 this.user.setExpirable(false);
             }
 
+            this.user.getUserApis().forEach(api -> {
+                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toTime().isBefore(now)) {
+                    api.setEnable(false);
+                    api.setExpireTime(null);
+                    api.setExpirable(false);
+                }
+            });
+
             return this.user;
         }
 

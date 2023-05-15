@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +21,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class User 
 {
     @Id
@@ -50,7 +48,6 @@ public class User
     @OneToOne(cascade = CascadeType.ALL)
     private TimeModel expireTime;
 
-    @Builder.Default
     @Column(columnDefinition = "BIT(1) default true")
     private boolean enable = true;
 }

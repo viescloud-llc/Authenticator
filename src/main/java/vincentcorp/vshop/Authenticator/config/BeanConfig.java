@@ -12,27 +12,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.google.gson.Gson;
 
 @Configuration
 public class BeanConfig 
 {
-    // @Bean
-    // public WebMvcConfigurer CORSConfigurer() {
-    //     return new WebMvcConfigurer() {
-    //         @Override
-    //         public void addCorsMappings(CorsRegistry registry) {
-    //             registry.addMapping("/**")
-    //                     .allowedOrigins("*")
-    //                     .allowedHeaders("*")
-    //                     .allowedMethods("*");
-    //         }
-    //     };
-    // }
-
     @Bean
     public Gson gson()
     {
@@ -68,8 +53,6 @@ public class BeanConfig
             {
                 result.write(buffer, 0, length);
             }
-
-            System.out.println(result.toString(StandardCharsets.UTF_8));
         }
     }
 }

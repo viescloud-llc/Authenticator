@@ -83,7 +83,10 @@ public class JwtService
 
             String key = String.format("%s.%s", HASH_KEY, jwt);
 
-            this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(User.builder().id(user.getId()).build()), Duration.ofSeconds(jwtTTL));
+            User tempUser = new User();
+            tempUser.setId(user.getId());
+
+            this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(tempUser), Duration.ofSeconds(jwtTTL));
 
             return jwt;
         }

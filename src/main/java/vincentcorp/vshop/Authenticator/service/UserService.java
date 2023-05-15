@@ -54,6 +54,11 @@ public class UserService
         return this.userDao.findAll();
     }
 
+    public int getMaxId()
+    {
+        return this.userDao.getMaxId();
+    }
+
     public User tryGetById(int id)
     {
         Optional<User> user = this.userDao.findById(id);

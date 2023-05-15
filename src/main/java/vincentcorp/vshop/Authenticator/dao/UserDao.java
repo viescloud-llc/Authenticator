@@ -25,5 +25,6 @@ public interface UserDao extends JpaRepository<User, Integer>
 	@Query(value = "select * from User as user where user.username = :username or user.password = :password", nativeQuery = true)
 	public List<User> getAllByMatchAny(@Param("username") String username, @Param("password") String password);
 
-
+	@Query(value = "SELECT max(id) as maxId FROM User.user;", nativeQuery = true)
+	public int getMaxId();
 }

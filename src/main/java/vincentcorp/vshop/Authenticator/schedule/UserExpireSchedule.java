@@ -46,7 +46,7 @@ public class UserExpireSchedule {
 
             try {
                 User user = f.get();
-                this.userService.modifyUser(user.getId(), user);
+                this.userService.patchUser(user.getId(), user);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

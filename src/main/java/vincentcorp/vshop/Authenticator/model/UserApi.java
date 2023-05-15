@@ -1,43 +1,42 @@
 package vincentcorp.vshop.Authenticator.model;
 
-import java.util.List;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.ws.rs.DefaultValue;
+
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "route")
+@Table(name = "user_api")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Route 
-{
+public class UserApi {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(length = 100)
+    private String name;
     
     @Column
-    private String path;
+    private String apiKey;
 
-    @Column
-    private String method;
+    @Column(columnDefinition = "BIT(1) default false")
+    private boolean expirable = false;
 
-    @Builder.Default
-    @Column()
-    private boolean secure = false;
+    @Column(columnDefinition = "BIT(1) default true")
+    private boolean enable = true;
 
-    @ManyToMany(cascade = CascadeType.DETACH)
-    private List<Role> roles;
+    @OneToOne(cascade = CascadeType.ALL)
+    private TimeModel expireTime;
 }

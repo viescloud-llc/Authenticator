@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,7 +41,16 @@ public class User
     @ManyToMany(cascade = CascadeType.REFRESH)
     private List<Role> userRoles;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<UserApi> userApis;
+
+    @Column(columnDefinition = "BIT(1) default false")
+    private boolean expirable = false;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private TimeModel expireTime;
+
     @Builder.Default
-    @Column
+    @Column(columnDefinition = "BIT(1) default true")
     private boolean enable = true;
 }

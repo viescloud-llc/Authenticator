@@ -1,43 +1,45 @@
 package vincentcorp.vshop.Authenticator.model;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.ws.rs.DefaultValue;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import vincentcorp.vshop.Authenticator.util.Time;
 
-@Entity
-@Table(name = "route")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Route 
-{
+@AllArgsConstructor
+@Entity
+@Table(name = "time")
+public class TimeModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column
+    private int year;
     
     @Column
-    private String path;
-
+    private int month;
+    
     @Column
-    private String method;
+    private int day;
+    
+    @Column
+    private int hours;
+    
+    @Column
+    private int minute;
+    
+    @Column
+    private int second;
 
-    @Builder.Default
-    @Column()
-    private boolean secure = false;
-
-    @ManyToMany(cascade = CascadeType.DETACH)
-    private List<Role> roles;
+    public Time toTime() {
+        return new Time(year, month, day, hours, minute, second);
+    }
 }

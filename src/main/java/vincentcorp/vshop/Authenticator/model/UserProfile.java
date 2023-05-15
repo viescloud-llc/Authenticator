@@ -20,7 +20,7 @@ public class UserProfile
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
+    
     @Column(length = 100)
     private String alias;
     

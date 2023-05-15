@@ -8,4 +8,4 @@ spring.cloud.vault:
     uri: http://10.24.24.2:8200
     connection-timeout: 5000
     read-timeout: 15000
-spring.config.import: vault://vshop/authenticator/dev
+spring.config.import: vault://v_eco/authenticator/dev

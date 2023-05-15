@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authenticator-prod
+  name: authenticator-prod-deployment
   namespace: authenticator-prod
   labels:
     app: authenticator-prod
@@ -26,11 +26,9 @@ spec:
         imagePullPolicy: Always
         resources:
           requests:
-            cpu: 0.5
             memory: 500M
           limits:
-            cpu: 2
-            memory: 1.5Gi
+            memory: 2Gi
         livenessProbe:
           tcpSocket:
             port: 81

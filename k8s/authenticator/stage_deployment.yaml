@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authenticator-stage
+  name: authenticator-stage-deployment
   namespace: authenticator-stage
   labels:
     app: authenticator-stage
@@ -26,10 +26,8 @@ spec:
         imagePullPolicy: Always
         resources:
           requests:
-            cpu: 0.5
             memory: 500M
           limits:
-            cpu: 2
             memory: 1.5Gi
         livenessProbe:
           tcpSocket:

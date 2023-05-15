@@ -14,8 +14,8 @@ import com.google.gson.Gson;
 
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.User;
-import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.JwtTokenUtil;
+import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 
 @Service
 public class JwtService 

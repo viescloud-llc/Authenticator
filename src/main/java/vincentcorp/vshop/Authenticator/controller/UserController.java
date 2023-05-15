@@ -24,7 +24,7 @@ import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.response.UsernameExistResponse;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.UserService;
-import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
+import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @RestController

@@ -22,10 +22,10 @@ import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.util.Constants;
-import vincentcorp.vshop.Authenticator.util.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
 import vincentcorp.vshop.Authenticator.util.Time;
+import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @Service

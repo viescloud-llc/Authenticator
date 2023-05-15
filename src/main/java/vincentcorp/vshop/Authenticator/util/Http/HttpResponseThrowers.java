@@ -1,4 +1,4 @@
-package vincentcorp.vshop.Authenticator.util;
+package vincentcorp.vshop.Authenticator.util.Http;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;

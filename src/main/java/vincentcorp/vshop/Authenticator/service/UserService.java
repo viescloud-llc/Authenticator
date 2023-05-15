@@ -154,7 +154,6 @@ public class UserService
         User nUser = oUser.get();
         
         if(this.checkUserExpire(nUser)) {
-            this.userDao.save(nUser);
             return (User) HttpResponseThrowers.throwForbidden("User is expire/lock, please contact administration");
         }
 
@@ -300,6 +299,8 @@ public class UserService
                 }
             });
 
-        return user.isEnable();
+        this.userDao.save(user);
+
+        return !user.isEnable();
     }
 }

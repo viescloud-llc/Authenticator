@@ -58,7 +58,15 @@ public class UserService
 
     public int getMaxId()
     {
-        return this.userDao.getMaxId();
+        int maxId = 0;
+        try {
+            maxId = this.userDao.getMaxId();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        
+        return maxId;
     }
 
     public User tryGetById(int id)
@@ -145,8 +153,10 @@ public class UserService
 
         User nUser = oUser.get();
         
-        if(this.checkUserExpire(nUser))
+        if(this.checkUserExpire(nUser)) {
+            this.userDao.save(nUser);
             return (User) HttpResponseThrowers.throwForbidden("User is expire/lock, please contact administration");
+        }
 
         return nUser;
     }

@@ -21,7 +21,7 @@ import vincentcorp.vshop.Authenticator.util.Time;
 @EnableScheduling
 public class UserExpireSchedule {
     private final long DELAY = 24 * 60 * 60 * 1000; //1 day
-    private final long INITIAL_DELAY = 10000; //60s
+    private final long INITIAL_DELAY = 60000; //60s
 
     @Autowired
     private UserService userService;

@@ -53,6 +53,22 @@ public class JwtService
         }
     }
 
+    public boolean tryCheckIsJwtExist(String jwt) {
+        try
+        {
+            if(jwt.toLowerCase().contains("bearer"))
+                jwt = jwt.split(" ")[1];
+
+            this.validateTokenExpiration(jwt);
+
+            return true;
+        }
+        catch(Exception ex)
+        {
+            return false;
+        }
+    }
+
     public boolean isJwtExist(String jwt) {
         try
         {

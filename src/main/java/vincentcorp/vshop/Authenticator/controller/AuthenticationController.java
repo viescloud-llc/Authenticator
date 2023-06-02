@@ -32,8 +32,12 @@ public class AuthenticationController
     private UserService userService;
 
     @GetMapping
-    public void isLogin(@RequestHeader("Authorization") String jwt) {
-        this.jwtService.isJwtExist(jwt);
+    public ResponseEntity<?> isLogin(@RequestHeader("Authorization") String jwt) {
+        var valid = this.jwtService.tryCheckIsJwtExist(jwt);
+        if(valid)
+            return (ResponseEntity<?>) ResponseEntity.ok();
+        else
+            return (ResponseEntity<?>) ResponseEntity.badRequest();
     }
 
     @GetMapping("/logout")

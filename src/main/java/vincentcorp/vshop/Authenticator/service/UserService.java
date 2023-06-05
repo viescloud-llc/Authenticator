@@ -21,7 +21,6 @@ import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
-import vincentcorp.vshop.Authenticator.util.Constants;
 import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
 import vincentcorp.vshop.Authenticator.util.Time;
@@ -31,6 +30,8 @@ import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 @Service
 public class UserService 
 {
+    public static final String NORMAL = "NORMAL";
+    
     public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.users";
 
     // @Value("${spring.cache.redis.userTTL}")
@@ -167,13 +168,13 @@ public class UserService
 
         user.setPassword(sha256PasswordEncoder.encode(user.getPassword()));
         List<Role> roles = new ArrayList<>();
-        Role role = roleDao.findByName(Constants.NORMAL);
+        Role role = roleDao.findByName(NORMAL);
 
         if(role == null)
         {
             role = new Role();
             role.setLevel(1);
-            role.setName(Constants.NORMAL);
+            role.setName(NORMAL);
             role = this.roleDao.save(role);
         }
 

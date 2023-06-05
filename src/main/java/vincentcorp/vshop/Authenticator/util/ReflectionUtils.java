@@ -2,9 +2,11 @@ package vincentcorp.vshop.Authenticator.util;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.util.ObjectUtils;
 
 import com.google.gson.Gson;
 
@@ -105,12 +107,20 @@ public final class ReflectionUtils
         return true;
     }
 
+    private static boolean containIdAnnotation(Annotation[] annotations) {
+        var match = Arrays.stream(annotations).parallel().anyMatch(e -> {
+            return e.annotationType() == jakarta.persistence.Id.class;
+        });
+
+        return match;
+    }
+
     public static boolean isEqual(Object object1, Object object2)
     {
         return ReflectionUtils.gson.toJson(object1).equals(ReflectionUtils.gson.toJson(object2));
     }
 
-    public static Example<?> getMatchAllMatcher(Object object)
+    public static <T extends Object> Example<T> getMatchAllMatcher(T object)
     {
         try
         {
@@ -139,7 +149,7 @@ public final class ReflectionUtils
         }
     }
 
-    public static Example<?> getMatchAnyMatcher(Object object)
+    public static <T extends Object> Example<T> getMatchAnyMatcher(T object)
     {
         try
         {
@@ -163,6 +173,31 @@ public final class ReflectionUtils
         }
         catch(Exception ex)
         {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Object getIdFieldValue(Object object) {
+        try {
+            Field[] fields = object.getClass().getDeclaredFields();
+
+            for (int i = 0; i < fields.length; i++) 
+            {
+                fields[i].setAccessible(true);
+                Object value = fields[i].get(object);
+    
+                if(!ObjectUtils.isEmpty(value) && containIdAnnotation(fields[i].getAnnotations())) {
+                    fields[i].setAccessible(false);
+                    return value;
+                }
+    
+                fields[i].setAccessible(false);
+            }
+
+            return null;
+        }
+        catch(Exception ex) {
             ex.printStackTrace();
             return null;
         }

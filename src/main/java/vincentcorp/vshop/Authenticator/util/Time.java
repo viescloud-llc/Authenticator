@@ -2,6 +2,7 @@ package vincentcorp.vshop.Authenticator.util;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,6 +17,8 @@ public class Time {
     public static final int MAX_MINUTE = 60;
     public static final int MAX_SECOND = 60;
 
+    public static final ZoneId DEFAULT_ZONE_ID = ZoneId.of("America/New_York");
+
     private int year;
     private int month;
     private int day;
@@ -24,8 +27,8 @@ public class Time {
     private int second;
 
     public Time() {
-        LocalDate localDate = LocalDate.now();
-        LocalTime localTime = LocalTime.now();
+        LocalDate localDate = LocalDate.now(DEFAULT_ZONE_ID);
+        LocalTime localTime = LocalTime.now(DEFAULT_ZONE_ID);
 
         this.month = localDate.getMonthValue();
         this.day = localDate.getDayOfMonth();
@@ -33,6 +36,26 @@ public class Time {
         this.hours = localTime.getHour();
         this.minute = localTime.getMinute();
         this.second = localTime.getSecond();
+    }
+
+    public Time(ZoneId zoneId) {
+        LocalDate localDate = LocalDate.now(zoneId);
+        LocalTime localTime = LocalTime.now(zoneId);
+
+        this.month = localDate.getMonthValue();
+        this.day = localDate.getDayOfMonth();
+        this.year = localDate.getYear();
+        this.hours = localTime.getHour();
+        this.minute = localTime.getMinute();
+        this.second = localTime.getSecond();
+    }
+
+    public static Time now() {
+        return new Time();
+    }
+
+    public static Time now(ZoneId zoneId) {
+        return new Time(zoneId);
     }
 
     public LocalDate toLocalDate() {
@@ -81,58 +104,65 @@ public class Time {
         return this.getMaxDay(this.month);
     }
 
-    public void increaseYear(int year) {
+    public Time increaseYear(int year) {
         this.year += year;
+        return this;
     }
 
-    public void increaseMonth(int month) {
+    public Time increaseMonth(int month) {
         this.month += month;
         if(this.month > MAX_MONTH) {
             this.increaseYear(this.month / MAX_MONTH);
             this.month = this.month % MAX_MONTH;
         }
+        return this;
     }
 
-    public void increaseDay(int day) {
+    public Time increaseDay(int day) {
         this.day += day;
         int MAX_DAY = this.getMaxDay();
         if(this.day > MAX_DAY) {
             this.increaseMonth(this.day / MAX_DAY);
             this.day = this.day % this.getMaxDay(this.month);
         }
+        return this;
     }
 
-    public void increaseHours(int hours) {
+    public Time increaseHours(int hours) {
         this.hours += hours;
-        if(this.hours > MAX_HOURS) {
+        if(this.hours >= MAX_HOURS) {
             this.increaseDay(this.hours / MAX_HOURS);
             this.hours = this.hours % MAX_HOURS;
         }
+        return this;
     }
 
-    public void increaseMinute(int minute) {
+    public Time increaseMinute(int minute) {
         this.minute += minute;
-        if(this.minute > MAX_MINUTE) {
+        if(this.minute >= MAX_MINUTE) {
             this.increaseHours(this.minute / MAX_MINUTE);
             this.minute = this.minute % MAX_MINUTE;
         }
+        return this;
     }
 
-    public void increaseSecond(int second) {
+    public Time increaseSecond(int second) {
         this.second += second;
-        if(this.second > MAX_SECOND) {
+        if(this.second >= MAX_SECOND) {
             this.increaseMinute(this.second / MAX_SECOND);
             this.second = this.second % MAX_SECOND;
         }
+        return this;
     }
 
-    public void increaseTime(Time time) {
+    public Time increaseTime(Time time) {
         this.increaseYear(time.getYear());
         this.increaseMonth(time.getMonth());
         this.increaseDay(this.getDay());
         this.increaseHours(this.getHours());
         this.increaseMinute(this.getMinute());
         this.increaseSecond(this.getSecond());
+        return this;
     }
 
     public String toSpring() {
@@ -144,6 +174,6 @@ public class Time {
     }
 
     public String getTime() {
-        return String.format("%s-%s-%s", this.hours, this.minute, this.second);
+        return String.format("%s:%s:%s", this.hours, this.minute, this.second);
     }
 }

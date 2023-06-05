@@ -1,5 +1,6 @@
 package vincentcorp.vshop.Authenticator.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Route 
+public class Route implements Serializable
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

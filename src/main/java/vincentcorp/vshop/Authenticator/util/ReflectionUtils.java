@@ -6,13 +6,23 @@ import java.util.Arrays;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
 import org.springframework.util.ObjectUtils;
 
 import com.google.gson.Gson;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public final class ReflectionUtils 
 {
+    public static final String CASE_SENSITIVE = "CASE_SENSITIVE";
+    public static final String CONTAINS = "CONTAINS";
+    public static final String ENDS_WITH = "ENDS_WITH";
+    public static final String EXACT = "EXACT";
+    public static final String IGNORE_CASE = "IGNORE_CASE";
+    public static final String REGEX = "REGEX";
+    public static final String START_WITH = "START_WITH";
     public static final Gson gson = new Gson();
 
     /**
@@ -51,7 +61,7 @@ public final class ReflectionUtils
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return false;
         }
     }
@@ -92,7 +102,7 @@ public final class ReflectionUtils
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return false;
         }
     }
@@ -122,6 +132,16 @@ public final class ReflectionUtils
 
     public static <T extends Object> Example<T> getMatchAllMatcher(T object)
     {
+        return getMatchAllMatcher(object, IGNORE_CASE);
+    }
+
+    public static <T extends Object> Example<T> getMatchAnyMatcher(T object)
+    {
+        return getMatchAnyMatcher(object, IGNORE_CASE);
+    }
+
+    public static <T extends Object> Example<T> getMatchAllMatcher(T object, String matchCase)
+    {
         try
         {
             ExampleMatcher customExampleMatcher = ExampleMatcher.matchingAll();
@@ -135,7 +155,7 @@ public final class ReflectionUtils
                 Object fieldValue = field.get(object);
 
                 if(fieldValue != null)
-                    customExampleMatcher.withMatcher(fieldName, ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+                    customExampleMatcher.withMatcher(fieldName, getCase(matchCase));
 
                 field.setAccessible(false);
             }
@@ -144,12 +164,12 @@ public final class ReflectionUtils
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
 
-    public static <T extends Object> Example<T> getMatchAnyMatcher(T object)
+    public static <T extends Object> Example<T> getMatchAnyMatcher(T object, String matchCase)
     {
         try
         {
@@ -164,7 +184,7 @@ public final class ReflectionUtils
                 Object fieldValue = field.get(object);
 
                 if(fieldValue != null)
-                    customExampleMatcher.withMatcher(fieldName, ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
+                    customExampleMatcher.withMatcher(fieldName, getCase(matchCase));
 
                 field.setAccessible(false);
             }
@@ -173,8 +193,44 @@ public final class ReflectionUtils
         }
         catch(Exception ex)
         {
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return null;
+        }
+    }
+
+    private static GenericPropertyMatcher getCase(String matchCase) {
+        matchCase = matchCase.toUpperCase();
+
+        switch(matchCase) {
+            case "CASE_SENSITIVE":
+            case "CASESENSITIVE":
+                return ExampleMatcher.GenericPropertyMatchers.caseSensitive();
+            case "CONTAINS":
+            case "CONTAIN":
+                return ExampleMatcher.GenericPropertyMatchers.contains();
+            case "ENDS_WITH":
+            case "END_WITH":
+            case "ENDSWITH":
+            case "ENDWITH":
+                return ExampleMatcher.GenericPropertyMatchers.endsWith();
+            case "EXACT":
+            case "EXACTS":
+                return ExampleMatcher.GenericPropertyMatchers.exact();
+            case "IGNORE_CASE":
+            case "IGNORE_CASES":
+            case "IGNORECASE":
+            case "IGNORECASES":
+                return ExampleMatcher.GenericPropertyMatchers.ignoreCase();
+            case "REGEX":
+            case "REGEXS":
+                return ExampleMatcher.GenericPropertyMatchers.regex();
+                case "START_WITH":
+                case "STARTS_WITH":
+                case "STARTSWITH":
+                case "STARTWITH":
+                return ExampleMatcher.GenericPropertyMatchers.startsWith();
+            default:
+                return ExampleMatcher.GenericPropertyMatchers.storeDefaultMatching();
         }
     }
 
@@ -198,7 +254,7 @@ public final class ReflectionUtils
             return null;
         }
         catch(Exception ex) {
-            ex.printStackTrace();
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }

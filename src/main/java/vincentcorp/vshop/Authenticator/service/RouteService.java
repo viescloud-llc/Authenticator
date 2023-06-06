@@ -29,11 +29,16 @@ public class RouteService {
     }
 
     public Route getById(int id) {
-        Route route = this.databaseUtils.get(id);
+        Route route = this.databaseUtils.getAndExpire(id);
 
         if (ObjectUtils.isEmpty(route))
             HttpResponseThrowers.throwBadRequest("Route ID not found");
 
+        return route;
+    }
+
+    public Route tryGetById(int id) {
+        Route route = this.databaseUtils.getAndExpire(id);
         return route;
     }
 
@@ -44,6 +49,16 @@ public class RouteService {
 
     public List<Route> getAllByMatchAny(Route route) {
         Example<Route> example = ReflectionUtils.getMatchAnyMatcher(route);
+        return this.routeDao.findAll(example);
+    }
+
+    public List<Route> getAllByMatchAll(Route route, String matchCase) {
+        Example<Route> example = ReflectionUtils.getMatchAllMatcher(route, matchCase);
+        return this.routeDao.findAll(example);
+    }
+
+    public List<Route> getAllByMatchAny(Route route, String matchCase) {
+        Example<Route> example = ReflectionUtils.getMatchAnyMatcher(route, matchCase);
         return this.routeDao.findAll(example);
     }
 

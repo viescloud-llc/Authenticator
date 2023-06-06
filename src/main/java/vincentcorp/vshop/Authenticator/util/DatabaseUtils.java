@@ -15,6 +15,7 @@ import org.springframework.util.ObjectUtils;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -60,6 +61,15 @@ public class DatabaseUtils<V, K> {
             log.error(ex.getMessage(), ex);
             return null;
         }
+    }
+
+    public V getAndExpire(K key) {
+        String hashKey = String.format("%s.%s", this.hashes, key);
+        var value = this.get(key);
+        if (!ObjectUtils.isEmpty(value))
+            this.redisTemplate.expire(hashKey, Duration.ofSeconds(TTL));
+
+        return value;
     }
 
     public V save(K key, V value) {

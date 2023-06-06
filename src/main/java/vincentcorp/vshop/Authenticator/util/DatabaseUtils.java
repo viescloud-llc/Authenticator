@@ -15,9 +15,11 @@ import org.springframework.util.ObjectUtils;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Scope("prototype")
+@Slf4j
 public class DatabaseUtils<V, K> {
 
     @Getter
@@ -56,7 +58,7 @@ public class DatabaseUtils<V, K> {
             return value;
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
             return null;
         }
         
@@ -75,7 +77,7 @@ public class DatabaseUtils<V, K> {
             return value;
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
@@ -97,7 +99,7 @@ public class DatabaseUtils<V, K> {
             return value;
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
@@ -111,7 +113,7 @@ public class DatabaseUtils<V, K> {
             return saveValue;
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
@@ -130,7 +132,7 @@ public class DatabaseUtils<V, K> {
             return saveValue;
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
             return null;
         }
     }
@@ -144,7 +146,7 @@ public class DatabaseUtils<V, K> {
             this.redisTemplate.delete(hashKey);
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
         }
     }
 
@@ -159,7 +161,7 @@ public class DatabaseUtils<V, K> {
                 this.redisTemplate.delete(hashKey);
         }
         catch(Exception ex) {
-            //log here
+            log.error(ex.getMessage(), ex);
         }
     }
 

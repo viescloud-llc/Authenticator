@@ -94,6 +94,12 @@
 		</dependency>
 
 		<!-- Logging -->
+
+		<dependency>
+			<groupId>de.siegmar</groupId>
+			<artifactId>logback-gelf</artifactId>
+			<version>4.0.2</version>
+		</dependency>
 		
 		<!-- Bug fix -->
 

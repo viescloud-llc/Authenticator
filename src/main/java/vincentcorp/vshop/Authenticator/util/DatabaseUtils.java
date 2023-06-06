@@ -27,7 +27,7 @@ public class DatabaseUtils<V, K> {
     private int TTL = 600;
 
     private String hashes = String.format("%s.%s", this.getClass().getName(), "default");
-    
+
     @Autowired
     private RedisTemplate<String, V> redisTemplate;
 
@@ -45,10 +45,10 @@ public class DatabaseUtils<V, K> {
             String hashKey = String.format("%s.%s", this.hashes, key);
             V value = this.redisTemplate.opsForValue().get(hashKey);
 
-            if(ObjectUtils.isEmpty(value)) {
+            if (ObjectUtils.isEmpty(value)) {
                 value = null;
                 var oValue = this.jpaRepository.findById(key);
-                if(oValue.isPresent()) {
+                if (oValue.isPresent()) {
                     value = oValue.get();
                     this.save(key, value);
                     return value;
@@ -56,27 +56,24 @@ public class DatabaseUtils<V, K> {
             }
 
             return value;
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return null;
         }
-        
     }
 
     public V save(K key, V value) {
         try {
             var hashKey = String.format("%s.%s", this.hashes, key);
 
-            if(!ObjectUtils.isEmpty(this.jpaRepository)) {
+            if (!ObjectUtils.isEmpty(this.jpaRepository)) {
                 value = jpaRepository.save(value);
             }
 
             this.redisTemplate.opsForValue().set(hashKey, value);
 
             return value;
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return null;
         }
@@ -84,21 +81,20 @@ public class DatabaseUtils<V, K> {
 
     public V save(V value) {
         try {
-            if(ObjectUtils.isEmpty(this.jpaRepository)) 
+            if (ObjectUtils.isEmpty(this.jpaRepository))
                 return null;
-            
+
             value = jpaRepository.save(value);
             var id = ReflectionUtils.getIdFieldValue(value);
 
-            if(ObjectUtils.isEmpty(id))
+            if (ObjectUtils.isEmpty(id))
                 return null;
 
             var hashKey = String.format("%s.%s", this.hashes, id);
             this.redisTemplate.opsForValue().set(hashKey, value);
 
             return value;
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return null;
         }
@@ -111,8 +107,7 @@ public class DatabaseUtils<V, K> {
             this.redisTemplate.expire(hashKey, Duration.ofMinutes(TTL));
 
             return saveValue;
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return null;
         }
@@ -123,15 +118,14 @@ public class DatabaseUtils<V, K> {
             var saveValue = this.save(value);
 
             var id = ReflectionUtils.getIdFieldValue(saveValue);
-            if(ObjectUtils.isEmpty(id))
+            if (ObjectUtils.isEmpty(id))
                 return null;
 
             var hashKey = String.format("%s.%s", this.hashes, id);
             this.redisTemplate.expire(hashKey, Duration.ofMinutes(TTL));
 
             return saveValue;
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
             return null;
         }
@@ -144,8 +138,7 @@ public class DatabaseUtils<V, K> {
             this.jpaRepository.deleteById(key);
 
             this.redisTemplate.delete(hashKey);
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
         }
     }
@@ -156,18 +149,17 @@ public class DatabaseUtils<V, K> {
             var hashKey = String.format("%s.%s", this.hashes, id);
 
             this.jpaRepository.delete(value);
-            
-            if(!ObjectUtils.isEmpty(id))
+
+            if (!ObjectUtils.isEmpty(id))
                 this.redisTemplate.delete(hashKey);
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
         }
     }
 
     @Bean
-    public static JedisConnectionFactory connectionFactory(@Value("${spring.data.redis.host}") String redisHost, @Value("${spring.data.redis.port}") int redisPort)
-    {
+    public static JedisConnectionFactory connectionFactory(@Value("${spring.data.redis.host}") String redisHost,
+            @Value("${spring.data.redis.port}") int redisPort) {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(redisHost);
         configuration.setPort(redisPort);
@@ -176,8 +168,7 @@ public class DatabaseUtils<V, K> {
 
     @Bean
     @Autowired
-    public static RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) 
-    {
+    public static RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory jedisConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory);
         // redisTemplate.setHashKeySerializer(new StringRedisSerializer());

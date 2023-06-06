@@ -15,196 +15,114 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.ErrorResponseException;
 
 import jakarta.ws.rs.QueryParam;
 import io.swagger.v3.oas.annotations.Operation;
 
 import vincentcorp.vshop.Authenticator.model.Route;
 import vincentcorp.vshop.Authenticator.service.RouteService;
-import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @RestController
 @RequestMapping("/routes")
-class RouteController
-{
+class RouteController {
     @Autowired
     RouteService routeService;
 
     @Operation(summary = "Get a list of all Route")
     @GetMapping
-    public ResponseEntity<List<Route>> getAll()
-    {
-        try
-        {
-            List<Route> routes = routeService.getAll();
+    public ResponseEntity<List<Route>> getAll() {
+        List<Route> routes = routeService.getAll();
 
-            if (routes.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (routes.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-            return new ResponseEntity<>(routes, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(routes, HttpStatus.OK);
     }
 
     @Operation(summary = "Get Route base on id in path variable")
     @GetMapping("{id}")
-    public ResponseEntity<Route> getById(@PathVariable("id") int id)
-    {
-        try
-        {
-            Route route = routeService.getById(id);
+    public ResponseEntity<Route> getById(@PathVariable("id") int id) {
+        Route route = routeService.getById(id);
 
-            return new ResponseEntity<>(route, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(route, HttpStatus.OK);
     }
 
     @Operation(summary = "Get a list of all Route that match all information base on query parameter")
     @GetMapping("match_all")
-    public ResponseEntity<List<Route>> matchAll(@QueryParam("route") Route route)
-    {
-        try
-        {
-            List<Route> routes = this.routeService.getAllByMatchAll(route);
+    public ResponseEntity<List<Route>> matchAll(@QueryParam("route") Route route) {
+        List<Route> routes = this.routeService.getAllByMatchAll(route);
 
-            if (routes.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (routes.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-            return new ResponseEntity<>(routes, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(routes, HttpStatus.OK);
     }
 
     @Operation(summary = "Get a list of all Route that match any information base on query parameter")
     @GetMapping("match_any")
-    public ResponseEntity<List<Route>> matchAny(@QueryParam("route") Route route)
-    {
-        try
-        {
-            List<Route> routes = this.routeService.getAllByMatchAny(route);
+    public ResponseEntity<List<Route>> matchAny(@QueryParam("route") Route route) {
+        List<Route> routes = this.routeService.getAllByMatchAny(route);
 
-            if (routes.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (routes.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-            return new ResponseEntity<>(routes, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(routes, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get a list of all Route that match all information base on query parameter and match case")
+    @GetMapping("match_all/{matchCase}")
+    public ResponseEntity<List<Route>> matchAll(@QueryParam("route") Route route,
+            @PathVariable("matchCase") String matchCase) {
+        List<Route> routes = this.routeService.getAllByMatchAll(route, matchCase);
+
+        if (routes.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(routes, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get a list of all Route that match any information base on query parameter and match case")
+    @GetMapping("match_any/{matchCase}")
+    public ResponseEntity<List<Route>> matchAny(@QueryParam("route") Route route,
+            @PathVariable("matchCase") String matchCase) {
+        List<Route> routes = this.routeService.getAllByMatchAny(route, matchCase);
+
+        if (routes.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(routes, HttpStatus.OK);
     }
 
     @Operation(summary = "Create a new Route")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Route> create(@RequestBody Route route)
-    {
-        try
-        {
-            Route savedRoute = routeService.createRoute(route);
-            return new ResponseEntity<>(savedRoute, HttpStatus.CREATED);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
-        }
+    public ResponseEntity<Route> create(@RequestBody Route route) {
+        Route savedRoute = routeService.createRoute(route);
+        return new ResponseEntity<>(savedRoute, HttpStatus.CREATED);
+
     }
 
-    @Operation(summary = "Modify an Route base on id in path variable")
+    @Operation(summary = "Modify a Route base on id in path variable")
     @PutMapping("{id}")
-    public ResponseEntity<Route> update(@PathVariable("id") int id, @RequestBody Route route)
-    {
-        try
-        {
-            route = this.routeService.modifyRoute(id, route);
-
-            return new ResponseEntity<>(route, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Route> update(@PathVariable("id") int id, @RequestBody Route route) {
+        route = this.routeService.modifyRoute(id, route);
+        return new ResponseEntity<>(route, HttpStatus.OK);
     }
 
-    @Operation(summary = "Patch an Route base on id in path variable")
+    @Operation(summary = "Patch a Route base on id in path variable")
     @PatchMapping("{id}")
-    public ResponseEntity<Route> patch(@PathVariable("id") int id, @RequestBody Route route)
-    {
-        try
-        {
-            route = this.routeService.patchRoute(id, route);
-
-            return new ResponseEntity<>(route, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Route> patch(@PathVariable("id") int id, @RequestBody Route route) {
+        route = this.routeService.patchRoute(id, route);
+        return new ResponseEntity<>(route, HttpStatus.OK);
     }
 
-    @Operation(summary = "Delete an Route base on id in path variable")
+    @Operation(summary = "Delete a Route base on id in path variable")
     @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") int id)
-    {
-        try
-        {
-            routeService.deleteRoute(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") int id) {
+        routeService.deleteRoute(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

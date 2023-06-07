@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponseException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,7 +24,6 @@ import vincentcorp.vshop.Authenticator.model.response.UsernameExistResponse;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.UserService;
 import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
-import vincentcorp.vshop.Authenticator.util.splunk.Splunk;
 
 @RestController
 @RequestMapping("/users")
@@ -38,7 +36,7 @@ public class UserController
     private UserService userService;
 
     @Operation(summary = "Get a list of all User")
-    @GetMapping
+    @GetMapping("all")
     public ResponseEntity<List<User>> getAll() {
         List<User> users = userService.getAll();
 

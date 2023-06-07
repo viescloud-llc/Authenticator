@@ -37,46 +37,23 @@ public class UserController
     @Autowired
     private UserService userService;
 
-    @Operation(summary = "Get All Users")
-    @GetMapping("all")
-    public ResponseEntity<List<User>> getUsers()
-    {
-        try
-        {
-            List<User> list = this.userService.getAll();
+    @Operation(summary = "Get a list of all User")
+    @GetMapping
+    public ResponseEntity<List<User>> getAll() {
+        List<User> users = userService.getAll();
 
-            return new ResponseEntity<>(list, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        if (users.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @Operation(summary = "Check if username already exist")
     @GetMapping("/username/{username}")
     public ResponseEntity<UsernameExistResponse> checkValidUsername(@PathVariable("username") String username)
     {
-        try
-        {
-            boolean exist = this.userService.isUsernameExist(username);
-
-            return new ResponseEntity<>(new UsernameExistResponse(exist), HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        boolean exist = this.userService.isUsernameExist(username);
+        return new ResponseEntity<>(new UsernameExistResponse(exist), HttpStatus.OK);
     }
 
     @Operation(summary = "Get User from JWT token")
@@ -94,154 +71,88 @@ public class UserController
 
     @Operation(summary = "Get User base on id in path variable")
     @GetMapping("{id}")
-    public ResponseEntity<User> getById(@PathVariable("id") int id)
-    {
-        try
-        {
-            User user = userService.getById(id);
+    public ResponseEntity<User> getById(@PathVariable("id") int id) {
+        User user = userService.getById(id);
 
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @Operation(summary = "Get a list of all User that match all information base on query parameter")
     @GetMapping("match_all")
-    public ResponseEntity<List<User>> matchAll(@QueryParam("user") User user)
-    {
-        try
-        {
-            List<User> users = this.userService.getAllByMatchAll(user);
+    public ResponseEntity<List<User>> matchAll(@QueryParam("user") User user) {
+        List<User> users = this.userService.getAllByMatchAll(user);
 
-            if (users.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (users.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @Operation(summary = "Get a list of all User that match any information base on query parameter")
     @GetMapping("match_any")
-    public ResponseEntity<List<User>> matchAny(@QueryParam("user") User user)
-    {
-        try
-        {
-            List<User> users = this.userService.getAllByMatchAny(user);
+    public ResponseEntity<List<User>> matchAny(@QueryParam("user") User user) {
+        List<User> users = this.userService.getAllByMatchAny(user);
 
-            if (users.isEmpty())
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (users.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
-            return new ResponseEntity<>(users, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get a list of all User that match all information base on query parameter and match case")
+    @GetMapping("match_all/{matchCase}")
+    public ResponseEntity<List<User>> matchAll(@QueryParam("user") User user,
+            @PathVariable("matchCase") String matchCase) {
+        List<User> users = this.userService.getAllByMatchAll(user, matchCase);
+
+        if (users.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get a list of all User that match any information base on query parameter and match case")
+    @GetMapping("match_any/{matchCase}")
+    public ResponseEntity<List<User>> matchAny(@QueryParam("user") User user,
+            @PathVariable("matchCase") String matchCase) {
+        List<User> users = this.userService.getAllByMatchAny(user, matchCase);
+
+        if (users.isEmpty())
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
     
     @Operation(summary = "Create a new User")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> create(@RequestBody User user)
-    {
-        try
-        {
-            User savedUser = userService.createUser(user);
-            return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.EXPECTATION_FAILED);
-        }
+    public ResponseEntity<User> create(@RequestBody User user) {
+        User savedUser = userService.createUser(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+
     }
 
-    @Operation(summary = "Modify an User base on id in path variable")
+    @Operation(summary = "Modify a User base on id in path variable")
     @PutMapping("{id}")
-    public ResponseEntity<User> update(@PathVariable("id") int id, @RequestBody User user)
-    {
-        try
-        {
-            user = this.userService.modifyUser(id, user);
-
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<User> update(@PathVariable("id") int id, @RequestBody User user) {
+        user = this.userService.modifyUser(id, user);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @Operation(summary = "Patch an User base on id in path variable")
+    @Operation(summary = "Patch a User base on id in path variable")
     @PatchMapping("{id}")
-    public ResponseEntity<User> patch(@PathVariable("id") int id, @RequestBody User user)
-    {
-        try
-        {
-            user = this.userService.patchUser(id, user);
-
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<User> patch(@PathVariable("id") int id, @RequestBody User user) {
+        user = this.userService.patchUser(id, user);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @Operation(summary = "Delete an User base on id in path variable")
+    @Operation(summary = "Delete a User base on id in path variable")
     @DeleteMapping("{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") int id)
-    {
-        try
-        {
-            userService.deleteUser(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        catch(ErrorResponseException ex)
-        {
-            throw ex;
-        }
-        catch (Exception ex)
-        {
-            Splunk.logError(ex);
-            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") int id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

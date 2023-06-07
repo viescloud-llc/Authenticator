@@ -97,7 +97,7 @@ public class DatabaseUtils<V, K> {
             var id = ReflectionUtils.getIdFieldValue(value);
 
             if (ObjectUtils.isEmpty(id))
-                return null;
+                return value;
 
             var hashKey = String.format("%s.%s", this.hashes, id);
             this.redisTemplate.opsForValue().set(hashKey, value);

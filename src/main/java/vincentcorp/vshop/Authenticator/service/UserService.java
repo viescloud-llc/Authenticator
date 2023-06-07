@@ -21,6 +21,7 @@ import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
+import vincentcorp.vshop.Authenticator.util.DatabaseUtils;
 import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
 import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
 import vincentcorp.vshop.Authenticator.util.Time;
@@ -34,14 +35,10 @@ public class UserService
     
     public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.users";
 
-    // @Value("${spring.cache.redis.userTTL}")
-    private int userTTL = 600;
+    private DatabaseUtils<User, Integer> databaseUtils;
 
     @Autowired
-    private Gson gson;
-
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private Sha256PasswordEncoder sha256PasswordEncoder;
 
     @Autowired
     private UserDao userDao;
@@ -49,8 +46,10 @@ public class UserService
     @Autowired
     private RoleDao roleDao;
 
-    @Autowired
-    private Sha256PasswordEncoder sha256PasswordEncoder;
+    public UserService(DatabaseUtils<User, Integer> databaseUtils, UserDao userDao) {
+        this.databaseUtils = databaseUtils.init(userDao, HASH_KEY);
+        this.userDao = userDao;
+    }
 
     public List<User> getAll()
     {
@@ -76,52 +75,32 @@ public class UserService
         return user.isPresent() ? user.get() : null;
     }
 
-    public User getById(int id)
-    {
-        //get from redis
-        String key = String.format("%s.%s", HASH_KEY, id);
-        try
-        {
-            String jsonUser = this.redisTemplate.opsForValue().get(key);
-            if(jsonUser != null)
-                return this.gson.fromJson(jsonUser, User.class);
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-        }
+    public User getById(int id) {
+        User user = this.databaseUtils.getAndExpire(id);
 
-        //get from database
-        Optional<User> oUser = this.userDao.findById(id);
-
-        if(oUser.isEmpty())
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User ID not found");
-
-        User user = oUser.get();
-
-        //save to redis
-        try
-        {
-            this.redisTemplate.opsForValue().set(key, gson.toJson(user));
-            this.redisTemplate.expire(key, userTTL, TimeUnit.SECONDS);
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-        }
+        if (ObjectUtils.isEmpty(user))
+            HttpResponseThrowers.throwBadRequest("User Id not found");
 
         return user;
     }
 
-    public List<User> getAllByMatchAll(User user)
-    {
-        Example<User> example = (Example<User>) ReflectionUtils.getMatchAllMatcher(user);
+    public List<User> getAllByMatchAll(User user) {
+        Example<User> example = ReflectionUtils.getMatchAllMatcher(user);
         return this.userDao.findAll(example);
     }
 
-    public List<User> getAllByMatchAny(User user)
-    {
-        Example<User> example = (Example<User>) ReflectionUtils.getMatchAnyMatcher(user);
+    public List<User> getAllByMatchAny(User user) {
+        Example<User> example = ReflectionUtils.getMatchAnyMatcher(user);
+        return this.userDao.findAll(example);
+    }
+
+    public List<User> getAllByMatchAll(User user, String matchCase) {
+        Example<User> example = ReflectionUtils.getMatchAllMatcher(user, matchCase);
+        return this.userDao.findAll(example);
+    }
+
+    public List<User> getAllByMatchAny(User user, String matchCase) {
+        Example<User> example = ReflectionUtils.getMatchAnyMatcher(user, matchCase);
         return this.userDao.findAll(example);
     }
 
@@ -133,7 +112,6 @@ public class UserService
     public boolean isUsernameExist(String username)
     {   
         List<User> users = userDao.findAllByUsername(username);
-        
         return users != null && users.parallelStream().anyMatch(user -> user.getUsername().equals(username));
     }
 
@@ -181,7 +159,7 @@ public class UserService
         roles.add(role);
 
         user.setUserRoles(roles);
-        user = this.userDao.save(user);
+        user = this.databaseUtils.save(user);
         return user;
     }
 
@@ -196,22 +174,9 @@ public class UserService
         
         ReflectionUtils.replaceValue(oldUser, user);
 
-        // validatePassword(oldUser, newPassword);
-
         oldUser.setPassword(newPassword);
 
-        oldUser = userDao.save(oldUser);
-
-        //remove from redis
-        try
-        {
-            String key = String.format("%s.%s", HASH_KEY, id);
-            this.redisTemplate.delete(key);
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-        }
+        oldUser = this.databaseUtils.save(oldUser);
 
         return oldUser;
     }
@@ -231,18 +196,7 @@ public class UserService
 
         validatePassword(oldUser, newPassword);
 
-        oldUser = userDao.save(oldUser);
-
-        //remove from redis
-        try
-        {
-            String key = String.format("%s.%s", HASH_KEY, id);
-            this.redisTemplate.delete(key);
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-        }
+        oldUser = this.databaseUtils.save(oldUser);
 
         return oldUser;
     }
@@ -256,20 +210,8 @@ public class UserService
         }
     }
 
-    public void deleteUser(int id)
-    {
-        this.userDao.deleteById(id);
-
-        //remove from redis
-        try
-        {
-            String key = String.format("%s.%s", HASH_KEY, id);
-            this.redisTemplate.delete(key);
-        }
-        catch(Exception ex)
-        {
-            Splunk.logError(ex);
-        }
+    public void deleteUser(int id) {
+        this.databaseUtils.deleteById(id);
     }
 
     public boolean hasAnyAuthority(User user, List<String> roles)

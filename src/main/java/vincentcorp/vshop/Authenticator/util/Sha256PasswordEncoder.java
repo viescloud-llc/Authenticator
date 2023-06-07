@@ -28,4 +28,12 @@ public class Sha256PasswordEncoder implements PasswordEncoder
     {
         return DigestUtils.sha256Hex(rawPassword.toString()).equals(encodedPassword);
     }
+
+    public String patchPassword(String encodedOriginPassword, String newPassword) {
+        String newEncodedPassword = this.encode(newPassword);
+        if(encodedOriginPassword.equals(newEncodedPassword))
+            return encodedOriginPassword;
+        else
+            return newEncodedPassword;
+    }
 }

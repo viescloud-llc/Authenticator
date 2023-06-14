@@ -1,5 +1,7 @@
 package vincentcorp.vshop.Authenticator.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +18,7 @@ import vincentcorp.vshop.Authenticator.util.Time;
 @AllArgsConstructor
 @Entity
 @Table(name = "time")
-public class TimeModel {
+public class TimeModel implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

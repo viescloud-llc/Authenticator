@@ -1,5 +1,6 @@
 package vincentcorp.vshop.Authenticator.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -25,7 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User 
+public class User implements Serializable
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

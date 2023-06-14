@@ -1,5 +1,7 @@
 package vincentcorp.vshop.Authenticator.model;
 
+import java.io.Serializable;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Jwt 
+public class Jwt implements Serializable
 {
     private String jwt;
 }

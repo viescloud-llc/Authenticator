@@ -1,5 +1,7 @@
 package vincentcorp.vshop.Authenticator.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserApi {
+public class UserApi implements Serializable {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

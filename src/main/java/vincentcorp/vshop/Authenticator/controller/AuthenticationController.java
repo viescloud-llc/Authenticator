@@ -9,7 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,5 +76,19 @@ public class AuthenticationController
         boolean hasAuthority = this.userService.hasAllAuthority(user, roles);
         String body = String.format("{\"hasAuthority\":%s}", hasAuthority);
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
+    }
+
+    @PutMapping("/user")
+    public User modifyUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
+        User jUser = this.jwtService.getUser(jwt);
+        user = this.userService.modifyUser(jUser.getId(), user);
+        return user;
+    }
+
+    @PatchMapping("/user")
+    public User patchUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
+        User jUser = this.jwtService.getUser(jwt);
+        user = this.userService.patchUser(jUser.getId(), user);
+        return user;
     }
 }

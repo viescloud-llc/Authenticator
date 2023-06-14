@@ -81,14 +81,14 @@ public class AuthenticationController
     @PutMapping("/user")
     public User modifyUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
-        user = this.userService.modifyUser(jUser.getId(), user);
-        return user;
+        var response = this.userService.modifyUser(jUser.getId(), user);
+        return response;
     }
 
     @PatchMapping("/user")
     public User patchUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
-        user = this.userService.patchUser(jUser.getId(), user);
-        return user;
+        var response = this.userService.patchUser(jUser.getId(), user);
+        return response;
     }
 }

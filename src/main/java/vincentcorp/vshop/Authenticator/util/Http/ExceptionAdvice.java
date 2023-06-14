@@ -1,6 +1,7 @@
 package vincentcorp.vshop.Authenticator.util.Http;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,7 +35,7 @@ public class ExceptionAdvice {
         var response = new HttpExceptionResponse();
         response.setMessage(HttpExceptionResponse.extractMessage(ex.getMessage()));
         response.setLocalizedMessage(ex.getLocalizedMessage());
-        response.setStatus(HttpStatus.builder().value(500).serverError(true).error(true).build());
+        response.setStatus(new HttpStatus(HttpStatusCode.valueOf(500)));
 
         log.error(ex.getMessage(), ex);
 

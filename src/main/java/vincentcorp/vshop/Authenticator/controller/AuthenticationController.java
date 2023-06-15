@@ -85,7 +85,7 @@ public class AuthenticationController
         return response;
     }
 
-    @PatchMapping("/user")
+    @PutMapping("/patch/user")
     public User patchUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
         var response = this.userService.patchUser(jUser.getId(), user);

@@ -45,7 +45,7 @@ public class DatabaseUtils<V, K> {
             String hashKey = String.format("%s.%s", this.hashes, key);
             V value = this.redisTemplate.opsForValue().get(hashKey);
 
-            if (ObjectUtils.isEmpty(value)) {
+            if (ObjectUtils.isEmpty(value) && !ObjectUtils.isEmpty(this.jpaRepository)) {
                 value = null;
                 var oValue = this.jpaRepository.findById(key);
                 if (oValue.isPresent()) {
@@ -144,7 +144,8 @@ public class DatabaseUtils<V, K> {
         try {
             var hashKey = String.format("%s.%s", this.hashes, key);
 
-            this.jpaRepository.deleteById(key);
+            if (!ObjectUtils.isEmpty(this.jpaRepository))
+                this.jpaRepository.deleteById(key);
 
             this.redisTemplate.delete(hashKey);
         } catch (Exception ex) {
@@ -157,7 +158,8 @@ public class DatabaseUtils<V, K> {
             var id = ReflectionUtils.getIdFieldValue(value);
             var hashKey = String.format("%s.%s", this.hashes, id);
 
-            this.jpaRepository.delete(value);
+            if (!ObjectUtils.isEmpty(this.jpaRepository))
+                this.jpaRepository.delete(value);
 
             if (!ObjectUtils.isEmpty(id))
                 this.redisTemplate.delete(hashKey);

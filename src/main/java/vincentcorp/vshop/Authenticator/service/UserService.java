@@ -151,7 +151,7 @@ public class UserService
         roles.add(role);
 
         user.setUserRoles(roles);
-        user = this.databaseUtils.save(user);
+        user = this.databaseUtils.saveAndExpire(user);
         return user;
     }
 
@@ -168,7 +168,7 @@ public class UserService
 
         oldUser.setPassword(newPassword);
 
-        oldUser = this.databaseUtils.save(oldUser);
+        oldUser = this.databaseUtils.saveAndExpire(oldUser);
 
         return oldUser;
     }
@@ -188,7 +188,7 @@ public class UserService
 
         validatePassword(oldUser, newPassword);
 
-        oldUser = this.databaseUtils.save(oldUser);
+        oldUser = this.databaseUtils.saveAndExpire(oldUser);
 
         return oldUser;
     }

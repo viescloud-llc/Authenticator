@@ -24,7 +24,7 @@ public class DatabaseUtils<V, K> {
 
     @Getter
     @Setter
-    private int TTL = 600;
+    private Time TTL = new Time(0, 0, 0, 0, 10, 0, true);
 
     private String hashes = String.format("%s.%s", this.getClass().getName(), "default");
 
@@ -66,7 +66,7 @@ public class DatabaseUtils<V, K> {
         String hashKey = String.format("%s.%s", this.hashes, key);
         var value = this.get(key);
         if (!ObjectUtils.isEmpty(value))
-            this.redisTemplate.expire(hashKey, Duration.ofSeconds(TTL));
+            this.redisTemplate.expire(hashKey, getTTLDuration());
 
         return value;
     }
@@ -113,7 +113,7 @@ public class DatabaseUtils<V, K> {
         try {
             var hashKey = String.format("%s.%s", this.hashes, key);
             var saveValue = this.save(key, value);
-            this.redisTemplate.expire(hashKey, Duration.ofMinutes(TTL));
+            this.redisTemplate.expire(hashKey, getTTLDuration());
 
             return saveValue;
         } catch (Exception ex) {
@@ -124,14 +124,14 @@ public class DatabaseUtils<V, K> {
 
     public V saveAndExpire(V value) {
         try {
+            var id = ReflectionUtils.getIdFieldValue(value);
             var saveValue = this.save(value);
-
-            var id = ReflectionUtils.getIdFieldValue(saveValue);
+            
             if (ObjectUtils.isEmpty(id))
                 return null;
 
             var hashKey = String.format("%s.%s", this.hashes, id);
-            this.redisTemplate.expire(hashKey, Duration.ofMinutes(TTL));
+            this.redisTemplate.expire(hashKey, getTTLDuration());
 
             return saveValue;
         } catch (Exception ex) {
@@ -190,5 +190,9 @@ public class DatabaseUtils<V, K> {
         // redisTemplate.setEnableTransactionSupport(true);
         // redisTemplate.afterPropertiesSet();
         return redisTemplate;
+    }
+
+    private Duration getTTLDuration() {
+        return Duration.ofSeconds(this.TTL.sumSeconds());
     }
 }

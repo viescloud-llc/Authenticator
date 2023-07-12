@@ -1,5 +1,6 @@
 package vincentcorp.vshop.Authenticator.util;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -9,8 +10,8 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 @Builder
+@AllArgsConstructor
 public class Time {
     public static final int MAX_MONTH = 12;
     public static final int MAX_HOURS = 24;
@@ -25,6 +26,9 @@ public class Time {
     private int hours;
     private int minute;
     private int second;
+
+    @Builder.Default
+    private boolean bypassMax = false;
 
     public Time() {
         LocalDate localDate = LocalDate.now(DEFAULT_ZONE_ID);
@@ -48,6 +52,15 @@ public class Time {
         this.hours = localTime.getHour();
         this.minute = localTime.getMinute();
         this.second = localTime.getSecond();
+    }
+
+    public Time(int year, int month, int day, int hours, int minute, int second) {
+        this.year = year;
+        this.month = month;
+        this.day = day;
+        this.hours = hours;
+        this.minute = minute;
+        this.second = second;
     }
 
     public static Time now() {
@@ -111,7 +124,7 @@ public class Time {
 
     public Time increaseMonth(int month) {
         this.month += month;
-        if(this.month > MAX_MONTH) {
+        if(!this.bypassMax && this.month > MAX_MONTH) {
             this.increaseYear(this.month / MAX_MONTH);
             this.month = this.month % MAX_MONTH;
         }
@@ -121,7 +134,7 @@ public class Time {
     public Time increaseDay(int day) {
         this.day += day;
         int MAX_DAY = this.getMaxDay();
-        if(this.day > MAX_DAY) {
+        if(!this.bypassMax && this.day > MAX_DAY) {
             this.increaseMonth(this.day / MAX_DAY);
             this.day = this.day % this.getMaxDay(this.month);
         }
@@ -130,7 +143,7 @@ public class Time {
 
     public Time increaseHours(int hours) {
         this.hours += hours;
-        if(this.hours >= MAX_HOURS) {
+        if(!this.bypassMax && this.hours >= MAX_HOURS) {
             this.increaseDay(this.hours / MAX_HOURS);
             this.hours = this.hours % MAX_HOURS;
         }
@@ -139,7 +152,7 @@ public class Time {
 
     public Time increaseMinute(int minute) {
         this.minute += minute;
-        if(this.minute >= MAX_MINUTE) {
+        if(!this.bypassMax && this.minute >= MAX_MINUTE) {
             this.increaseHours(this.minute / MAX_MINUTE);
             this.minute = this.minute % MAX_MINUTE;
         }
@@ -148,7 +161,7 @@ public class Time {
 
     public Time increaseSecond(int second) {
         this.second += second;
-        if(this.second >= MAX_SECOND) {
+        if(!this.bypassMax && this.second >= MAX_SECOND) {
             this.increaseMinute(this.second / MAX_SECOND);
             this.second = this.second % MAX_SECOND;
         }
@@ -175,5 +188,33 @@ public class Time {
 
     public String getTime() {
         return String.format("%s:%s:%s", this.hours, this.minute, this.second);
+    }
+
+    public double sumMinutes() {
+        double yearToMonth = (this.year * 12) + this.month;
+        double monthToDay = (yearToMonth * 30) + this.day;
+        double dayToHours = (monthToDay * 24) + this.hours;
+        double hoursToMinutes = (dayToHours * 60) + this.minute;
+        double secondToMinutes = (double)this.second / 60;
+        return hoursToMinutes + secondToMinutes;
+    }
+
+    public long sumSeconds() {
+        double sumMinutes = this.sumMinutes();
+        return (long) (sumMinutes * 60);
+    }
+
+    public Duration toDuration() {
+        var zero = new Time(0, 0, 0, 0, 0, 0);
+
+        var timeTarget = this.toLocalTime();
+        var timeDuration = Duration.between(zero.toLocalTime(), timeTarget);
+
+        var dayTarget = this.toLocalDate();
+        var dayDuration = Duration.between(zero.toLocalDate(), dayTarget);
+
+        var duration = timeDuration.plus(dayDuration);
+
+        return duration;
     }
 }

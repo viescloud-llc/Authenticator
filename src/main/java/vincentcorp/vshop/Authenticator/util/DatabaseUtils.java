@@ -90,10 +90,9 @@ public class DatabaseUtils<V, K> {
 
     public V save(V value) {
         try {
-            if (ObjectUtils.isEmpty(this.jpaRepository))
-                return null;
+            if (!ObjectUtils.isEmpty(this.jpaRepository))
+                value = jpaRepository.save(value);
 
-            value = jpaRepository.save(value);
             var id = ReflectionUtils.getIdFieldValue(value);
 
             if (ObjectUtils.isEmpty(id))

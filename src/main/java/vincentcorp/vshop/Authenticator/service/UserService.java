@@ -8,17 +8,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+
+import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
+import com.vincent.inc.viesspringutils.util.DatabaseUtils;
+import com.vincent.inc.viesspringutils.util.ReflectionUtils;
+import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
+import com.vincent.inc.viesspringutils.util.Time;
+
 import org.springframework.data.domain.Example;
 import io.micrometer.common.util.StringUtils;
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
-import vincentcorp.vshop.Authenticator.util.DatabaseUtils;
-import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
-import vincentcorp.vshop.Authenticator.util.Sha256PasswordEncoder;
-import vincentcorp.vshop.Authenticator.util.Time;
-import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 
 @Service
 public class UserService 
@@ -28,9 +30,6 @@ public class UserService
     public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.users";
 
     private DatabaseUtils<User, Integer> databaseUtils;
-
-    @Autowired
-    private Sha256PasswordEncoder sha256PasswordEncoder;
 
     @Autowired
     private UserDao userDao;
@@ -109,7 +108,7 @@ public class UserService
 
     public User login(User user)
     {
-        user.setPassword(sha256PasswordEncoder.encode(user.getPassword()));
+        user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
         List<User> users = this.userDao.findAllByUsername(user.getUsername());
         AtomicInteger userID = new AtomicInteger();
         users.parallelStream().forEach(u -> {
@@ -136,7 +135,7 @@ public class UserService
         if(this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
 
-        user.setPassword(sha256PasswordEncoder.encode(user.getPassword()));
+        user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
         List<Role> roles = new ArrayList<>();
         Role role = roleDao.findByName(NORMAL);
 
@@ -162,7 +161,7 @@ public class UserService
         if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
 
-        String newPassword = sha256PasswordEncoder.encode(user.getPassword());
+        String newPassword = Sha256PasswordEncoder.encode(user.getPassword());
         
         ReflectionUtils.replaceValue(oldUser, user);
 
@@ -196,7 +195,7 @@ public class UserService
     private void validatePassword(User user, String newPassword) {
         if(!StringUtils.isEmpty(newPassword) && !user.getPassword().equals(newPassword))
         {
-            newPassword = sha256PasswordEncoder.encode(newPassword);
+            newPassword = Sha256PasswordEncoder.encode(newPassword);
             if(!user.getPassword().equals(newPassword))
                 user.setPassword(newPassword);
         }

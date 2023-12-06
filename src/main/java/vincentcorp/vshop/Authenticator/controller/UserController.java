@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
+
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.ws.rs.QueryParam;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.response.UsernameExistResponse;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.UserService;
-import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 
 @RestController
 @RequestMapping("/users")

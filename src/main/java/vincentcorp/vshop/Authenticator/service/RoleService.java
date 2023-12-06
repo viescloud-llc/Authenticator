@@ -4,12 +4,13 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
+import com.vincent.inc.viesspringutils.util.DatabaseUtils;
+import com.vincent.inc.viesspringutils.util.ReflectionUtils;
+
 import org.springframework.data.domain.Example;
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.model.Role;
-import vincentcorp.vshop.Authenticator.util.DatabaseUtils;
-import vincentcorp.vshop.Authenticator.util.ReflectionUtils;
-import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 
 @Service
 public class RoleService {

@@ -11,11 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.google.gson.Gson;
+import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
 
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.util.JwtTokenUtil;
-import vincentcorp.vshop.Authenticator.util.Http.HttpResponseThrowers;
 
 @Service
 public class JwtService 

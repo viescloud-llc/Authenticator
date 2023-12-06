@@ -1,0 +1,80 @@
+[
+	{
+		"configId": 1,
+		"configName": "java with git hook",
+		"path": "/vincent-services/v-eco",
+		"jobName": "authenticator-dev",
+		"replaceMap": {
+			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"displayName": "authenticator Dev",
+			"upperCaseServiceName": "AUTHENTICATOR-DEV",
+			"environment": "dev",
+			"dockerImage": "authenticator"
+		}
+	},
+	{
+		"configId": 2,
+		"configName": "k8s",
+		"path": "/vincent-services/v-eco",
+		"jobName": "authenticator-dev-k8s",
+		"replaceMap": {
+			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"displayName": "authenticator Dev k8s",
+			"triggerAfterJobName": "authenticator-dev",
+			"k8sServiceFolderName": "authenticator",
+			"environment": "dev"
+		}
+	},
+	{
+		"configId": 3,
+		"configName": "java",
+		"path": "/vincent-services/v-eco",
+		"jobName": "authenticator-stage",
+		"replaceMap": {
+			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"displayName": "authenticator Stage",
+			"upperCaseServiceName": "AUTHENTICATOR-STAGE",
+			"environment": "stage",
+			"dockerImage": "authenticator"
+		}
+	},
+	{
+		"configId": 2,
+		"configName": "k8s",
+		"path": "/vincent-services/v-eco",
+		"jobName": "authenticator-stage-k8s",
+		"replaceMap": {
+			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"displayName": "authenticator Stage k8s",
+			"triggerAfterJobName": "authenticator-stage",
+			"k8sServiceFolderName": "authenticator",
+			"environment": "stage"
+		}
+	},
+	{
+		"configId": 3,
+		"configName": "java",
+		"path": "/vincent-services/v-eco",
+		"jobName": "authenticator-prod",
+		"replaceMap": {
+			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"displayName": "authenticator Prod",
+			"upperCaseServiceName": "AUTHENTICATOR-STAGE",
+			"environment": "prod",
+			"dockerImage": "authenticator"
+		}
+	},
+	{
+		"configId": 2,
+		"configName": "k8s",
+		"path": "/vincent-services/v-eco",
+		"jobName": "authenticator-prod-k8s",
+		"replaceMap": {
+			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"displayName": "authenticator Prod k8s",
+			"triggerAfterJobName": "authenticator-prod",
+			"k8sServiceFolderName": "authenticator",
+			"environment": "prod"
+		}
+	}
+]

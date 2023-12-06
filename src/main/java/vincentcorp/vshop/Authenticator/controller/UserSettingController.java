@@ -51,12 +51,12 @@ public class UserSettingController {
         
         if(ObjectUtils.isEmpty(data)) {
             data = new UserSetting(user.getId(), userSetting);
-            this.userSettingService.createUserSetting(data);
+            this.userSettingService.create(data);
             return new ResponseEntity<>(data.getData(), HttpStatus.CREATED);
         }
         
         data.setData(userSetting);
-        data = this.userSettingService.patchUserSetting(user.getId(), data);
+        data = this.userSettingService.patch(user.getId(), data);
         return new ResponseEntity<>(data.getData(), HttpStatus.OK);
     }
 }

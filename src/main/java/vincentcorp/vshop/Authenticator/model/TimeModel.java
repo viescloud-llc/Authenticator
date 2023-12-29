@@ -1,8 +1,9 @@
 package vincentcorp.vshop.Authenticator.model;
 
 import java.io.Serializable;
+import java.time.ZoneId;
 
-import com.vincent.inc.viesspringutils.util.Time;
+import com.vincent.inc.viesspringutils.util.DateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "time")
 public class TimeModel implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -33,7 +35,7 @@ public class TimeModel implements Serializable {
     private int day;
     
     @Column
-    private int hours;
+    private int hour;
     
     @Column
     private int minute;
@@ -41,7 +43,22 @@ public class TimeModel implements Serializable {
     @Column
     private int second;
 
-    public Time toTime() {
-        return new Time(year, month, day, hours, minute, second);
+    @Column
+    private ZoneId currentZoneId = DateTime.DEFAULT_ZONE_ID;
+
+    @Column
+    private boolean bypassMax = false;
+
+    public DateTime toDateTime() {
+        return DateTime.builder()
+                       .year(year)
+                       .month(month)
+                       .day(day)
+                       .hour(hour)
+                       .minute(minute)
+                       .second(second)
+                       .currentZoneId(currentZoneId)
+                       .bypassMax(bypassMax)
+                       .build();
     }
 }

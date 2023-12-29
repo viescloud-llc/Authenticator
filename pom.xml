@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.2</version>
+		<version>3.2.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>vincentcorp.vshop</groupId>
@@ -16,7 +16,7 @@
 	<description>Authenticator</description>
 	<properties>
 		<java.version>17</java.version>
-		<spring-cloud.version>2022.0.1</spring-cloud.version>
+		<spring-cloud.version>2023.0.0</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -135,7 +135,7 @@
 		<dependency>
 			<groupId>com.vincent.inc</groupId>
 			<artifactId>vies-spring-utils</artifactId>
-			<version>1.5.3</version>
+			<version>1.5.15</version>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>

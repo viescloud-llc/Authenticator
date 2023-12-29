@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.ObjectUtils;
 
-import com.vincent.inc.viesspringutils.util.Time;
+import com.vincent.inc.viesspringutils.util.DateTime;
 
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.service.UserService;
@@ -65,9 +65,9 @@ public class UserExpireSchedule {
 
         @Override
         public User call() throws Exception {
-            Time now = new Time();
+            DateTime now = DateTime.now();
             
-            if(this.user.isExpirable() && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().toTime().isBefore(now)) {
+            if(this.user.isExpirable() && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().toDateTime().isBefore(now)) {
                 this.user.setEnable(false);
                 this.user.setExpireTime(null);
                 this.user.setExpirable(false);
@@ -75,7 +75,7 @@ public class UserExpireSchedule {
 
             if(!ObjectUtils.isEmpty(user.getUserApis()))
                 user.getUserApis().forEach(api -> {
-                    if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toTime().isBefore(now)) {
+                    if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toDateTime().isBefore(now)) {
                         api.setEnable(false);
                         api.setExpireTime(null);
                         api.setExpirable(false);

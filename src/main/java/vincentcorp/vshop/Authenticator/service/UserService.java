@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
+import com.vincent.inc.viesspringutils.service.ViesService;
 import com.vincent.inc.viesspringutils.util.DatabaseUtils;
+import com.vincent.inc.viesspringutils.util.DateTime;
 import com.vincent.inc.viesspringutils.util.ReflectionUtils;
 import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
-import com.vincent.inc.viesspringutils.util.Time;
 
-import org.springframework.data.domain.Example;
 import io.micrometer.common.util.StringUtils;
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
@@ -23,76 +23,28 @@ import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
 
 @Service
-public class UserService 
+public class UserService extends ViesService<User, Integer, UserDao>
 {
     public static final String NORMAL = "NORMAL";
-    
-    public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.users";
-
-    private DatabaseUtils<User, Integer> databaseUtils;
-
-    @Autowired
-    private UserDao userDao;
 
     @Autowired
     private RoleDao roleDao;
 
-    public UserService(DatabaseUtils<User, Integer> databaseUtils, UserDao userDao) {
-        this.databaseUtils = databaseUtils.init(userDao, HASH_KEY);
-        this.userDao = userDao;
-    }
-
-    public List<User> getAll()
-    {
-        return this.userDao.findAll();
+    public UserService(DatabaseUtils<User, Integer> databaseUtils, UserDao repositoryDao) {
+        super(databaseUtils, repositoryDao);
     }
 
     public int getMaxId()
     {
         int maxId = 0;
         try {
-            maxId = this.userDao.getMaxId();
+            maxId = this.repositoryDao.getMaxId();
         }
         catch(Exception ex) {
             ex.printStackTrace();
         }
         
         return maxId;
-    }
-
-    public User tryGetById(int id)
-    {
-        Optional<User> user = this.userDao.findById(id);
-        return user.isPresent() ? user.get() : null;
-    }
-
-    public User getById(int id) {
-        User user = this.databaseUtils.getAndExpire(id);
-
-        if (ObjectUtils.isEmpty(user))
-            HttpResponseThrowers.throwBadRequest("User Id not found");
-
-        return user;
-    }
-
-    public List<User> getAllByMatchAll(User user) {
-        Example<User> example = ReflectionUtils.getMatchAllMatcher(user);
-        return this.userDao.findAll(example);
-    }
-
-    public List<User> getAllByMatchAny(User user) {
-        Example<User> example = ReflectionUtils.getMatchAnyMatcher(user);
-        return this.userDao.findAll(example);
-    }
-
-    public List<User> getAllByMatchAll(User user, String matchCase) {
-        Example<User> example = ReflectionUtils.getMatchAllMatcher(user, matchCase);
-        return this.userDao.findAll(example);
-    }
-
-    public List<User> getAllByMatchAny(User user, String matchCase) {
-        Example<User> example = ReflectionUtils.getMatchAnyMatcher(user, matchCase);
-        return this.userDao.findAll(example);
     }
 
     /**
@@ -102,21 +54,21 @@ public class UserService
      */
     public boolean isUsernameExist(String username)
     {   
-        List<User> users = userDao.findAllByUsername(username);
+        List<User> users = repositoryDao.findAllByUsername(username);
         return users != null && users.parallelStream().anyMatch(user -> user.getUsername().equals(username));
     }
 
     public User login(User user)
     {
         user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
-        List<User> users = this.userDao.findAllByUsername(user.getUsername());
+        List<User> users = this.repositoryDao.findAllByUsername(user.getUsername());
         AtomicInteger userID = new AtomicInteger();
         users.parallelStream().forEach(u -> {
             if(u.getUsername().equals(user.getUsername()) && u.getPassword().equals(user.getPassword()))
                 userID.set(u.getId());
         });
 
-        Optional<User> oUser = userDao.findById(userID.get());
+        Optional<User> oUser = repositoryDao.findById(userID.get());
 
         if(oUser.isEmpty())
             HttpResponseThrowers.throwBadRequest("Invalid username or password");
@@ -216,9 +168,9 @@ public class UserService
     }
 
     public boolean checkUserExpire(User user) {
-        Time now = new Time();
+        DateTime now = DateTime.now();
 
-        if(user.isExpirable() && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().toTime().isBefore(now)) {
+        if(user.isExpirable() && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().toDateTime().isBefore(now)) {
             user.setEnable(false);
             user.setExpireTime(null);
             user.setExpirable(false);
@@ -226,15 +178,20 @@ public class UserService
 
         if(!ObjectUtils.isEmpty(user.getUserApis()))
             user.getUserApis().forEach(api -> {
-                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toTime().isBefore(now)) {
+                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toDateTime().isBefore(now)) {
                     api.setEnable(false);
                     api.setExpireTime(null);
                     api.setExpirable(false);
                 }
             });
 
-        this.userDao.save(user);
+        this.repositoryDao.save(user);
 
         return !user.isEnable();
+    }
+
+    @Override
+    protected User newEmptyObject() {
+        return new User();
     }
 }

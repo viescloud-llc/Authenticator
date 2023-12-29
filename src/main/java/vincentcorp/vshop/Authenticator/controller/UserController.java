@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.ws.rs.QueryParam;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.response.UsernameExistResponse;
 import vincentcorp.vshop.Authenticator.service.JwtService;
@@ -76,52 +75,6 @@ public class UserController
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @Operation(summary = "Get a list of all User that match all information base on query parameter")
-    @GetMapping("match_all")
-    public ResponseEntity<List<User>> matchAll(@QueryParam("user") User user) {
-        List<User> users = this.userService.getAllByMatchAll(user);
-
-        if (users.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Get a list of all User that match any information base on query parameter")
-    @GetMapping("match_any")
-    public ResponseEntity<List<User>> matchAny(@QueryParam("user") User user) {
-        List<User> users = this.userService.getAllByMatchAny(user);
-
-        if (users.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Get a list of all User that match all information base on query parameter and match case")
-    @GetMapping("match_all/{matchCase}")
-    public ResponseEntity<List<User>> matchAll(@QueryParam("user") User user,
-            @PathVariable("matchCase") String matchCase) {
-        List<User> users = this.userService.getAllByMatchAll(user, matchCase);
-
-        if (users.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    @Operation(summary = "Get a list of all User that match any information base on query parameter and match case")
-    @GetMapping("match_any/{matchCase}")
-    public ResponseEntity<List<User>> matchAny(@QueryParam("user") User user,
-            @PathVariable("matchCase") String matchCase) {
-        List<User> users = this.userService.getAllByMatchAny(user, matchCase);
-
-        if (users.isEmpty())
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-    
     @Operation(summary = "Create a new User")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

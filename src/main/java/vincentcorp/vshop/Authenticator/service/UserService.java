@@ -13,7 +13,6 @@ import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
 import com.vincent.inc.viesspringutils.service.ViesService;
 import com.vincent.inc.viesspringutils.util.DatabaseUtils;
 import com.vincent.inc.viesspringutils.util.DateTime;
-import com.vincent.inc.viesspringutils.util.ReflectionUtils;
 import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
 
 import io.micrometer.common.util.StringUtils;
@@ -58,6 +57,13 @@ public class UserService extends ViesService<User, Integer, UserDao>
         return users != null && users.parallelStream().anyMatch(user -> user.getUsername().equals(username));
     }
 
+    private void isUsernameExist(Integer id, User user) {
+        User oldUser = this.getById(id);
+
+        if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
+            HttpResponseThrowers.throwBadRequest("Username already exist");
+    }
+
     public User login(User user)
     {
         user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
@@ -82,17 +88,19 @@ public class UserService extends ViesService<User, Integer, UserDao>
         return nUser;
     }
 
-    public User createUser(User user)
-    {
+    @Override
+    public User create(User user) {
         if(this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
+        setDefaultUserRole(user);
+        return super.create(user);
+    }
 
-        user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
+    private void setDefaultUserRole(User user) {
         List<Role> roles = new ArrayList<>();
         Role role = roleDao.findByName(NORMAL);
 
-        if(role == null)
-        {
+        if(role == null) {
             role = new Role();
             role.setLevel(1);
             role.setName(NORMAL);
@@ -100,51 +108,26 @@ public class UserService extends ViesService<User, Integer, UserDao>
         }
 
         roles.add(role);
-
         user.setUserRoles(roles);
-        user = this.databaseUtils.saveAndExpire(user);
-        return user;
     }
 
-    public User modifyUser(int id, User user)
-    {
-        User oldUser = this.getById(id);
-
-        if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
-            HttpResponseThrowers.throwBadRequest("Username already exist");
-
-        String newPassword = Sha256PasswordEncoder.encode(user.getPassword());
-        
-        ReflectionUtils.replaceValue(oldUser, user);
-
-        oldUser.setPassword(newPassword);
-
-        oldUser = this.databaseUtils.saveAndExpire(oldUser);
-
-        return oldUser;
-    }
-
-    public User patchUser(int id, User user)
-    {
-        User oldUser = this.getById(id);
-
-        if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
-            HttpResponseThrowers.throwBadRequest("Username already exist");
-
-        String newPassword = user.getPassword();
-        
+    @Override
+    public User modify(Integer id, User user) {
+        isUsernameExist(id, user);
         user.setPassword(null);
-        
-        ReflectionUtils.patchValue(oldUser, user);
-
-        validatePassword(oldUser, newPassword);
-
-        oldUser = this.databaseUtils.saveAndExpire(oldUser);
-
-        return oldUser;
+        return super.modify(id, user);
     }
 
-    private void validatePassword(User user, String newPassword) {
+    
+
+    @Override
+    public User patch(Integer id, User user) {
+        isUsernameExist(id, user);
+        user.setPassword(null);
+        return super.patch(id, user);
+    }
+
+    public void validatePassword(User user, String newPassword) {
         if(!StringUtils.isEmpty(newPassword) && !user.getPassword().equals(newPassword))
         {
             newPassword = Sha256PasswordEncoder.encode(newPassword);

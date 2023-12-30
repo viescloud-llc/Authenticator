@@ -25,7 +25,7 @@ public class Role implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
+    @Column(length = 100)
     private String name;
 
     @Column

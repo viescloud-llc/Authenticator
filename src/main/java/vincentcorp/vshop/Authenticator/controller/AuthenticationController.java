@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vincent.inc.viesspringutils.interfaces.InputHashing;
+import com.vincent.inc.viesspringutils.interfaces.HideHashing;
+
 import vincentcorp.vshop.Authenticator.model.Jwt;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.service.JwtService;
@@ -79,16 +82,20 @@ public class AuthenticationController
     }
 
     @PutMapping("/user")
+    @InputHashing
+    @HideHashing
     public User modifyUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
-        var response = this.userService.modifyUser(jUser.getId(), user);
+        var response = this.userService.modify(jUser.getId(), user);
         return response;
     }
 
     @PatchMapping("/user")
+    @InputHashing
+    @HideHashing
     public User patchUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
-        var response = this.userService.patchUser(jUser.getId(), user);
+        var response = this.userService.patch(jUser.getId(), user);
         return response;
     }
 }

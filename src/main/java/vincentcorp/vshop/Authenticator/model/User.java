@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.vincent.inc.viesspringutils.interfaces.Hashing;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,10 +33,11 @@ public class User implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column
+    @Column(length = 100, unique = true)
     private String username;
 
     @Column
+    @Hashing
     private String password;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

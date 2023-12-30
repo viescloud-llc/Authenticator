@@ -32,7 +32,7 @@ public class Route implements Serializable
     @Column
     private String path;
 
-    @Column
+    @Column(length = 20)
     private String method;
 
     @Builder.Default

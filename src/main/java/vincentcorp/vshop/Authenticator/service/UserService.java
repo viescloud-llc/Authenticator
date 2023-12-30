@@ -118,12 +118,20 @@ public class UserService extends ViesService<User, Integer, UserDao>
         return super.modify(id, user);
     }
 
-    
+    public User modifyUser(Integer id, User user) {
+        isUsernameExist(id, user);
+        return super.modify(id, user);
+    }
 
     @Override
     public User patch(Integer id, User user) {
         isUsernameExist(id, user);
         user.setPassword(null);
+        return super.patch(id, user);
+    }
+
+    public User patchUser(Integer id, User user) {
+        isUsernameExist(id, user);
         return super.patch(id, user);
     }
 

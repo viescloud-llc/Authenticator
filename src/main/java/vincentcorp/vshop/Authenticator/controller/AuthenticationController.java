@@ -86,7 +86,7 @@ public class AuthenticationController
     @HideHashing
     public User modifyUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
-        var response = this.userService.modify(jUser.getId(), user);
+        var response = this.userService.modifyUser(jUser.getId(), user);
         return response;
     }
 
@@ -95,7 +95,7 @@ public class AuthenticationController
     @HideHashing
     public User patchUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
         User jUser = this.jwtService.getUser(jwt);
-        var response = this.userService.patch(jUser.getId(), user);
+        var response = this.userService.patchUser(jUser.getId(), user);
         return response;
     }
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
-import com.vincent.inc.viesspringutils.interfaces.HideHashing;
+import com.vincent.inc.viesspringutils.interfaces.RemoveHashing;
 import com.vincent.inc.viesspringutils.interfaces.InputHashing;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +39,7 @@ public class UserController
 
     @Operation(summary = "Get a list of all User")
     @GetMapping("all")
-    @HideHashing
+    @RemoveHashing
     public ResponseEntity<List<User>> getAll() {
         List<User> users = userService.getAll();
 
@@ -59,7 +59,7 @@ public class UserController
 
     @Operation(summary = "Get User from JWT token")
     @GetMapping
-    @HideHashing
+    @RemoveHashing
     public User getUser(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2)
     {
         if(jwt1 != null && !jwt1.isEmpty() && !jwt1.isBlank())
@@ -73,7 +73,7 @@ public class UserController
 
     @Operation(summary = "Get User base on id in path variable")
     @GetMapping("{id}")
-    @HideHashing
+    @RemoveHashing
     public ResponseEntity<User> getById(@PathVariable("id") int id) {
         User user = userService.getById(id);
 
@@ -84,7 +84,7 @@ public class UserController
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @InputHashing
-    @HideHashing
+    @RemoveHashing
     public ResponseEntity<User> create(@RequestBody User user) {
         User savedUser = userService.create(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
@@ -94,7 +94,7 @@ public class UserController
     @PutMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @InputHashing
-    @HideHashing
+    @RemoveHashing
     public ResponseEntity<User> update(@PathVariable("id") int id, @RequestBody User user) {
         user = this.userService.modify(id, user);
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -104,7 +104,7 @@ public class UserController
     @PatchMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @InputHashing
-    @HideHashing
+    @RemoveHashing
     public ResponseEntity<User> patch(@PathVariable("id") int id, @RequestBody User user) {
         user = this.userService.patch(id, user);
         return new ResponseEntity<>(user, HttpStatus.OK);

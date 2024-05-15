@@ -85,8 +85,8 @@ public class UserController
     @ResponseStatus(HttpStatus.CREATED)
     @InputHashing
     @RemoveHashing
-    public ResponseEntity<User> create(@RequestBody User user) {
-        User savedUser = userService.create(user);
+    public ResponseEntity<User> post(@RequestBody User user) {
+        User savedUser = userService.post(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
@@ -95,8 +95,8 @@ public class UserController
     @ResponseStatus(HttpStatus.OK)
     @InputHashing
     @RemoveHashing
-    public ResponseEntity<User> update(@PathVariable("id") int id, @RequestBody User user) {
-        user = this.userService.modify(id, user);
+    public ResponseEntity<User> put(@PathVariable("id") int id, @RequestBody User user) {
+        user = this.userService.put(id, user);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 

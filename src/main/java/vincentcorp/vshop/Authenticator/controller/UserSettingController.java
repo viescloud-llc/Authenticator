@@ -51,7 +51,7 @@ public class UserSettingController {
         
         if(ObjectUtils.isEmpty(data)) {
             data = new UserSetting(user.getId(), userSetting);
-            this.userSettingService.create(data);
+            this.userSettingService.post(data);
             return new ResponseEntity<>(data.getData(), HttpStatus.CREATED);
         }
         

@@ -11,7 +11,7 @@ import org.springframework.util.ObjectUtils;
 
 import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
 import com.vincent.inc.viesspringutils.service.ViesService;
-import com.vincent.inc.viesspringutils.util.DatabaseUtils;
+import com.vincent.inc.viesspringutils.util.DatabaseCall;
 import com.vincent.inc.viesspringutils.util.DateTime;
 import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
 
@@ -29,7 +29,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
     @Autowired
     private RoleDao roleDao;
 
-    public UserService(DatabaseUtils<User, Integer> databaseUtils, UserDao repositoryDao) {
+    public UserService(DatabaseCall<User, Integer> databaseUtils, UserDao repositoryDao) {
         super(databaseUtils, repositoryDao);
     }
 
@@ -89,11 +89,11 @@ public class UserService extends ViesService<User, Integer, UserDao>
     }
 
     @Override
-    public User create(User user) {
+    public User post(User user) {
         if(this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
         setDefaultUserRole(user);
-        return super.create(user);
+        return super.post(user);
     }
 
     private void setDefaultUserRole(User user) {
@@ -112,15 +112,15 @@ public class UserService extends ViesService<User, Integer, UserDao>
     }
 
     @Override
-    public User modify(Integer id, User user) {
+    public User put(Integer id, User user) {
         isUsernameExist(id, user);
         user.setPassword(null);
-        return super.modify(id, user);
+        return super.put(id, user);
     }
 
     public User modifyUser(Integer id, User user) {
         isUsernameExist(id, user);
-        return super.modify(id, user);
+        return super.put(id, user);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
     }
 
     public void deleteUser(int id) {
-        this.databaseUtils.deleteById(id);
+        this.databaseCall.deleteById(id);
     }
 
     public boolean hasAnyAuthority(User user, List<String> roles)

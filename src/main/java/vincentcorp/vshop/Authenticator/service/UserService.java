@@ -130,6 +130,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
         if(this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
         setDefaultUserRole(user);
+        user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
         return super.post(user);
     }
 

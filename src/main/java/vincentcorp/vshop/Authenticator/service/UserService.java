@@ -69,6 +69,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
     public User loginWithOpenId(OpenIdUserInfoResponse openIdUserInfoResponse) {
         String sub = openIdUserInfoResponse.getSub();
         String email = openIdUserInfoResponse.getEmail();
+        String name = openIdUserInfoResponse.getName();
 
         var foundUser = this.repositoryDao.findBySub(sub);
         
@@ -79,14 +80,14 @@ public class UserService extends ViesService<User, Integer, UserDao>
                 foundUser.setEmail(email);
                 foundUser = this.databaseCall.saveAndExpire(foundUser);
             }
-            return foundUser;
+            return updateName(name, foundUser);
         }
         
         if(ObjectUtils.isEmpty(foundUser)) {
             User user = new User();
             user.setEmail(email);
             user.setSub(sub);
-            user.setName(openIdUserInfoResponse.getName());
+            user.setName(name);
             user.setUsername(email.substring(0, email.indexOf("@")));
             user.setEnable(true);
             user.setPassword(Sha256PasswordEncoder.encode(UUID.randomUUID().toString()));
@@ -97,8 +98,16 @@ public class UserService extends ViesService<User, Integer, UserDao>
                 foundUser.setSub(sub);
                 foundUser = this.databaseCall.saveAndExpire(foundUser);
             }
-            return foundUser;
+            return updateName(name, foundUser);
         }
+    }
+
+    private User updateName(String name, User foundUser) {
+        if(ObjectUtils.isEmpty(foundUser.getName()) || foundUser.getName().equals(name)) {
+            foundUser.setName(name);
+            foundUser = this.databaseCall.saveAndExpire(foundUser);
+        }
+        return foundUser;
     }
 
     public User login(User user)

@@ -103,7 +103,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
     }
 
     private User updateName(String name, User foundUser) {
-        if(ObjectUtils.isEmpty(foundUser.getName()) || foundUser.getName().equals(name)) {
+        if(ObjectUtils.isEmpty(foundUser.getName()) || !foundUser.getName().equals(name)) {
             foundUser.setName(name);
             foundUser = this.databaseCall.saveAndExpire(foundUser);
         }

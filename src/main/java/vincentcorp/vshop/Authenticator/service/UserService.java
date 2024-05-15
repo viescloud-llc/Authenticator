@@ -89,7 +89,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
             user.setName(openIdUserInfoResponse.getName());
             user.setUsername(email.substring(0, email.indexOf("@")));
             user.setEnable(true);
-            user.setPassword(UUID.randomUUID().toString());
+            user.setPassword(Sha256PasswordEncoder.encode(UUID.randomUUID().toString()));
             return this.post(user);
         }
         else {
@@ -130,7 +130,6 @@ public class UserService extends ViesService<User, Integer, UserDao>
         if(this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
         setDefaultUserRole(user);
-        user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
         return super.post(user);
     }
 

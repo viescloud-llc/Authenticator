@@ -33,6 +33,15 @@ public class User implements Serializable
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(unique = true)
+    private String sub;
+
+    @Column(unique = true)
+    private String email;
+
+    @Column
+    private String name;
+
     @Column(length = 100, unique = true)
     private String username;
 

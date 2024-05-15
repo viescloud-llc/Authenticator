@@ -3,6 +3,7 @@ package vincentcorp.vshop.Authenticator.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import vincentcorp.vshop.Authenticator.dao.RoleDao;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
+import vincentcorp.vshop.Authenticator.model.openId.OpenIdUserInfoResponse;
 
 @Service
 public class UserService extends ViesService<User, Integer, UserDao>
@@ -62,6 +64,41 @@ public class UserService extends ViesService<User, Integer, UserDao>
 
         if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
+    }
+
+    public User loginWithOpenId(OpenIdUserInfoResponse openIdUserInfoResponse) {
+        String sub = openIdUserInfoResponse.getSub();
+        String email = openIdUserInfoResponse.getEmail();
+
+        var foundUser = this.repositoryDao.findBySub(sub);
+        
+        if(ObjectUtils.isEmpty(foundUser))
+            foundUser = this.repositoryDao.findByEmail(email);
+        else {
+            if(ObjectUtils.isEmpty(foundUser.getEmail())) {
+                foundUser.setEmail(email);
+                foundUser = this.databaseCall.saveAndExpire(foundUser);
+            }
+            return foundUser;
+        }
+        
+        if(ObjectUtils.isEmpty(foundUser)) {
+            User user = new User();
+            user.setEmail(email);
+            user.setSub(sub);
+            user.setName(openIdUserInfoResponse.getName());
+            user.setUsername(email.substring(0, email.indexOf("@")));
+            user.setEnable(true);
+            user.setPassword(UUID.randomUUID().toString());
+            return this.post(user);
+        }
+        else {
+            if(ObjectUtils.isEmpty(foundUser.getSub())) {
+                foundUser.setSub(sub);
+                foundUser = this.databaseCall.saveAndExpire(foundUser);
+            }
+            return foundUser;
+        }
     }
 
     public User login(User user)

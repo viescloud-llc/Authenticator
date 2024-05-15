@@ -23,7 +23,9 @@ import com.vincent.inc.viesspringutils.interfaces.RemoveHashing;
 
 import vincentcorp.vshop.Authenticator.model.Jwt;
 import vincentcorp.vshop.Authenticator.model.User;
+import vincentcorp.vshop.Authenticator.model.openId.OpenIdRequest;
 import vincentcorp.vshop.Authenticator.service.JwtService;
+import vincentcorp.vshop.Authenticator.service.OpenIdService;
 import vincentcorp.vshop.Authenticator.service.UserService;
 
 @RestController
@@ -35,6 +37,9 @@ public class AuthenticationController
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OpenIdService openIdService;
 
     @GetMapping
     public ResponseEntity<?> isLogin(@RequestHeader("Authorization") String jwt) {
@@ -49,12 +54,23 @@ public class AuthenticationController
     public void logout(@RequestHeader("Authorization") String jwt) {
         this.jwtService.logout(jwt);
     }
+
+    @PostMapping("/openId")
+    public ResponseEntity<Jwt> postMethodName(@RequestBody OpenIdRequest openIdRequest) {
+        var userInfo = openIdService.getUserInfo(openIdRequest);
+        var user = this.userService.loginWithOpenId(userInfo);
+        return getJwtResponse(user);
+    }
     
     @PostMapping(value = "/login", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Jwt> login(@RequestBody User user)
     {
         user = this.userService.login(user);
+        return getJwtResponse(user);
+    }
+
+    private ResponseEntity<Jwt> getJwtResponse(User user) {
         String jwt = this.jwtService.generateJwtToken(user);
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<>();

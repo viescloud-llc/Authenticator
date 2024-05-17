@@ -8,6 +8,11 @@ import com.vincent.inc.viesspringutils.controller.ViesController;
 import vincentcorp.vshop.Authenticator.model.Route;
 import vincentcorp.vshop.Authenticator.service.RouteService;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 @RestController
 @RequestMapping("/routes")
 class RouteController extends ViesController<Route, Integer, RouteService> {
@@ -15,4 +20,11 @@ class RouteController extends ViesController<Route, Integer, RouteService> {
     public RouteController(RouteService service) {
         super(service);
     }
+
+    @PutMapping("sync")
+    public String syncRoute(@RequestBody List<Route> routes) {
+        this.service.syncRoute(routes);
+        return "Synced";
+    }
+    
 }

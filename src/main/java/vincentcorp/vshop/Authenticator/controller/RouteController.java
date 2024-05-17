@@ -22,9 +22,8 @@ class RouteController extends ViesController<Route, Integer, RouteService> {
     }
 
     @PutMapping("sync")
-    public String syncRoute(@RequestBody List<Route> routes) {
-        this.service.syncRoute(routes);
-        return "Synced";
+    public List<Route> syncRoute(@RequestBody List<Route> routes) {
+        return this.service.syncRoute(routes);
     }
     
 }

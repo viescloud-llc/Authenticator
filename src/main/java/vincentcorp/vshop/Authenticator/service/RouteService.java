@@ -28,7 +28,7 @@ public class RouteService extends ViesService<Route, Integer, RouteDao> {
         return new Route();
     }
     
-    public void syncRoute(List<Route> newRoutes) {
+    public List<Route> syncRoute(List<Route> newRoutes) {
         List<Route> currentRoutes = new ArrayList<>();
         currentRoutes.addAll(this.getAll());
         List<Role> roles = new ArrayList<>();
@@ -62,5 +62,7 @@ public class RouteService extends ViesService<Route, Integer, RouteDao> {
         });
 
         currentRoutes.parallelStream().forEach(e -> this.delete(e.getId()));
+
+        return this.getAll();
     }
 }

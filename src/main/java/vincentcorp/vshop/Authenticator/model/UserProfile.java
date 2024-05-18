@@ -36,9 +36,6 @@ public class UserProfile implements Serializable
     private String phoneNumber;
     
     @Column
-    private String email;
-    
-    @Column
     private String address;
     
     @Column(length = 50)

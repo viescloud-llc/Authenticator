@@ -164,7 +164,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
         return super.put(id, user);
     }
 
-    public User modifyUser(Integer id, User user) {
+    public User putUser(Integer id, User user) {
         isUsernameExist(id, user);
         return super.put(id, user);
     }

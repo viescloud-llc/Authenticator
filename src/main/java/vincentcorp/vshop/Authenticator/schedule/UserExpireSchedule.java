@@ -67,7 +67,7 @@ public class UserExpireSchedule {
         public User call() throws Exception {
             DateTime now = DateTime.now();
             
-            if(this.user.isExpirable() && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().toDateTime().isBefore(now)) {
+            if(this.user.isExpirable() && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().isBefore(now)) {
                 this.user.setEnable(false);
                 this.user.setExpireTime(null);
                 this.user.setExpirable(false);
@@ -75,7 +75,7 @@ public class UserExpireSchedule {
 
             if(!ObjectUtils.isEmpty(user.getUserApis()))
                 user.getUserApis().forEach(api -> {
-                    if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toDateTime().isBefore(now)) {
+                    if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
                         api.setEnable(false);
                         api.setExpireTime(null);
                         api.setExpirable(false);

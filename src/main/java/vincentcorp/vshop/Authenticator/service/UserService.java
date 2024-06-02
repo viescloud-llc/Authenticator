@@ -207,7 +207,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
     public boolean checkUserExpire(User user) {
         DateTime now = DateTime.now();
 
-        if(user.isExpirable() && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().toDateTime().isBefore(now)) {
+        if(user.isExpirable() && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().isBefore(now)) {
             user.setEnable(false);
             user.setExpireTime(null);
             user.setExpirable(false);
@@ -215,7 +215,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
 
         if(!ObjectUtils.isEmpty(user.getUserApis()))
             user.getUserApis().forEach(api -> {
-                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().toDateTime().isBefore(now)) {
+                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
                     api.setEnable(false);
                     api.setExpireTime(null);
                     api.setExpirable(false);

@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "time")
+@Table(name = "times")
 public class TimeModel extends DateTime {
 
     @Id

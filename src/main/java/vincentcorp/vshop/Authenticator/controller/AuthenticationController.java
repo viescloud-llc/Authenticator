@@ -1,6 +1,7 @@
 package vincentcorp.vshop.Authenticator.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
 import com.vincent.inc.viesspringutils.interfaces.InputHashing;
 import com.vincent.inc.viesspringutils.interfaces.RemoveHashing;
 
@@ -27,6 +29,8 @@ import vincentcorp.vshop.Authenticator.model.openId.OpenIdRequest;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.OpenIdService;
 import vincentcorp.vshop.Authenticator.service.UserService;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("auth")
@@ -95,6 +99,31 @@ public class AuthenticationController
         boolean hasAuthority = this.userService.hasAllAuthority(user, roles);
         String body = String.format("{\"hasAuthority\":%s}", hasAuthority);
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
+    }
+
+    @SuppressWarnings("unchecked")
+    @PostMapping("/token/api/temporary/{ttl}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Map<String, String> generateApiToken(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2, @PathVariable("ttl") int ttl) {
+        if(jwt1 != null && !jwt1.isEmpty() && !jwt1.isBlank()) {
+            var user = this.jwtService.getUser(jwt1);
+            var token = this.jwtService.generateApiToken(user, ttl);
+            return Map.of("token", token);
+        }
+
+        if(jwt2 != null && !jwt2.isEmpty() && !jwt2.isBlank()) {
+            var user = this.jwtService.getUser(jwt2);
+            var token = this.jwtService.generateApiToken(user, ttl);
+            return Map.of("token", token);
+        }
+
+        return (Map<String, String>) HttpResponseThrowers.throwUnauthorized("Invalid or missing jwt token");
+    }
+
+    @PostMapping("/token/api/temporary")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Map<String, String> generateApiToken(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2) {
+        return this.generateApiToken(jwt1, jwt2, 30);
     }
 
     @PutMapping("/user")

@@ -68,7 +68,7 @@ public class UserController
         if(jwt2 != null && !jwt2.isEmpty() && !jwt2.isBlank())
             return this.jwtService.getUser(jwt2);
 
-        return (User) HttpResponseThrowers.throwBadRequest("Invalid or missing jwt token");
+        return (User) HttpResponseThrowers.throwUnauthorized("Invalid or missing jwt token");
     }
 
     @Operation(summary = "Get User base on id in path variable")

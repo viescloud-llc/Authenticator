@@ -12,18 +12,22 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.google.gson.Gson;
 import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
+import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
 
+import lombok.extern.slf4j.Slf4j;
 import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.util.JwtTokenUtil;
 
 @Service
+@Slf4j
 public class JwtService 
 {
     public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.jwt";
 
     // @Value("${spring.cache.redis.jwtTTL}")
     private int jwtTTL = 1200;
+    private int tokenTTL = 30;
 
     @Autowired
     private Gson gson;
@@ -109,47 +113,84 @@ public class JwtService
             return (String) HttpResponseThrowers.throwServerError("Server can't store JWT");
         }
     }
+
+    public String generateApiToken(User user) {
+        return this.generateApiToken(user, this.tokenTTL);
+    }
+
+    public String generateApiToken(User user, int ttl) {
+        try {
+            var uuid = java.util.UUID.randomUUID().toString();
+            String token = Sha256PasswordEncoder.encode(uuid);
+            String key = String.format("%s.%s", HASH_KEY, token);
+            User tempUser = new User();
+            tempUser.setId(user.getId());
+            this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(tempUser), Duration.ofSeconds(ttl));
+            return token;
+        }
+        catch(Exception ex) {
+            return (String) HttpResponseThrowers.throwServerError("Server can't store API Token");
+        }
+    }
     
     public User getUser(String jwt)
     {
-        if(jwt.toLowerCase().contains("bearer"))
+        String type = null;
+
+        if(jwt.toLowerCase().contains("bearer")) {
+            type = "Bearer";
             jwt = jwt.split(" ")[1];
+            this.validateTokenExpiration(jwt);
+        }
+        else if(jwt.toLowerCase().contains("token")) {
+            type = "Token";
+            jwt = jwt.split(" ")[1];
+            this.validateTokenExpiration(jwt, 30);
+        }
             
-        this.validateTokenExpiration(jwt);
+        if(type.equals("Bearer")) {
+            String username = this.jwtTokenUtil.getUsernameFromToken(jwt);
+            String pwd = this.jwtTokenUtil.getPwdFromToken(jwt);
+            List<User> users = this.userDao.findAllByUsername(username);
+            AtomicInteger userID = new AtomicInteger();
+            users.parallelStream().forEach(u -> {
+                if(u.getUsername().equals(username) && u.getPassword().equals(pwd))
+                    userID.set(u.getId());
+            });
 
-        String username = this.jwtTokenUtil.getUsernameFromToken(jwt);
-        String pwd = this.jwtTokenUtil.getPwdFromToken(jwt);
-        List<User> users = this.userDao.findAllByUsername(username);
-        AtomicInteger userID = new AtomicInteger();
-        users.parallelStream().forEach(u -> {
-            if(u.getUsername().equals(username) && u.getPassword().equals(pwd))
-                userID.set(u.getId());
-        });
+            Optional<User> oUser = userDao.findById(userID.get());
 
-        Optional<User> oUser = userDao.findById(userID.get());
+            if(!oUser.isPresent())
+                HttpResponseThrowers.throwUnauthorized("user in token is invalid");
 
-        if(!oUser.isPresent())
-            HttpResponseThrowers.throwBadRequest("user in token is invalid");
+            String tokenPwd = this.jwtTokenUtil.getPwdFromToken(jwt);
 
-        String tokenPwd = this.jwtTokenUtil.getPwdFromToken(jwt);
+            User user = oUser.get();
 
-        User user = oUser.get();
+            if(!tokenPwd.equals(user.getPassword()))
+                HttpResponseThrowers.throwUnauthorized("Invalid Token");
 
-        if(!tokenPwd.equals(user.getPassword()))
-            HttpResponseThrowers.throwBadRequest("Invalid Token");
+            return user;
+        } 
+        else if(type.equals("Token")) {
+            return this.getUserFromApiToken(jwt);
+        }
 
-        return user;
+        return (User) HttpResponseThrowers.throwUnauthorized("Invalid Token");
     }
 
-    public void validateTokenExpiration(String jwt)
-    {
+    public void validateTokenExpiration(String jwt) {
+        this.validateTokenExpiration(jwt, jwtTTL);
+    }
+
+    public void validateTokenExpiration(String jwt, int ttl) {
         boolean isExpired;
         try
         {
             // isExpired = this.jwtTokenUtil.isTokenExpired(jwt);
             String key = String.format("%s.%s", HASH_KEY, jwt);
 
-            String object = this.redisTemplate.opsForValue().getAndExpire(key, Duration.ofSeconds(jwtTTL));
+            String object = this.redisTemplate.opsForValue().getAndExpire(key, Duration.ofSeconds(ttl));
 
             isExpired = object == null;
         }
@@ -160,5 +201,18 @@ public class JwtService
 
         if(isExpired)
             HttpResponseThrowers.throwUnauthorized("JWT token is invalid or expired");
+    }
+
+    private User getUserFromApiToken(String token) {
+        try {
+            String key = String.format("%s.%s", HASH_KEY, token);
+            String object = this.redisTemplate.opsForValue().get(key);
+            User user = gson.fromJson(object, User.class);
+            return this.userDao.findById(user.getId()).orElseThrow(() -> HttpResponseThrowers.throwServerErrorException("can't get user from api token"));
+        }
+        catch(Exception ex) {
+            log.error(ex.getMessage(), ex);
+            return (User) HttpResponseThrowers.throwServerError("can't get user from api token");
+        }
     }
 }

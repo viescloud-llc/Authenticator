@@ -18,7 +18,7 @@
 		"path": "/vincent-services/v-eco",
 		"jobName": "authenticator-dev-k8s",
 		"replaceMap": {
-			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"projectUrl": "https://github.com/vincent-inc/CICD-config",
 			"displayName": "authenticator Dev k8s",
 			"triggerAfterJobName": "authenticator-dev",
 			"k8sServiceFolderName": "authenticator",
@@ -44,7 +44,7 @@
 		"path": "/vincent-services/v-eco",
 		"jobName": "authenticator-stage-k8s",
 		"replaceMap": {
-			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"projectUrl": "https://github.com/vincent-inc/CICD-config",
 			"displayName": "authenticator Stage k8s",
 			"triggerAfterJobName": "authenticator-stage",
 			"k8sServiceFolderName": "authenticator",
@@ -70,7 +70,7 @@
 		"path": "/vincent-services/v-eco",
 		"jobName": "authenticator-prod-k8s",
 		"replaceMap": {
-			"projectUrl": "https://github.com/vincent-inc/Authenticator",
+			"projectUrl": "https://github.com/vincent-inc/CICD-config",
 			"displayName": "authenticator Prod k8s",
 			"triggerAfterJobName": "authenticator-prod",
 			"k8sServiceFolderName": "authenticator",

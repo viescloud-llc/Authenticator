@@ -29,7 +29,6 @@ import vincentcorp.vshop.Authenticator.model.openId.OpenIdRequest;
 import vincentcorp.vshop.Authenticator.service.JwtService;
 import vincentcorp.vshop.Authenticator.service.OpenIdService;
 import vincentcorp.vshop.Authenticator.service.UserService;
-import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
@@ -102,28 +101,22 @@ public class AuthenticationController
     }
 
     @SuppressWarnings("unchecked")
-    @PostMapping("/token/api/temporary/{ttl}")
+    @PostMapping("/token/api/temporary")
     @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, String> generateApiToken(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2, @PathVariable("ttl") int ttl) {
+    public Map<String, String> generateApiToken(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2) {
         if(jwt1 != null && !jwt1.isEmpty() && !jwt1.isBlank()) {
             var user = this.jwtService.getUser(jwt1);
-            var token = this.jwtService.generateApiToken(user, ttl);
+            var token = this.jwtService.generateToken(user);
             return Map.of("token", token);
         }
 
         if(jwt2 != null && !jwt2.isEmpty() && !jwt2.isBlank()) {
             var user = this.jwtService.getUser(jwt2);
-            var token = this.jwtService.generateApiToken(user, ttl);
+            var token = this.jwtService.generateToken(user);
             return Map.of("token", token);
         }
 
         return (Map<String, String>) HttpResponseThrowers.throwUnauthorized("Invalid or missing jwt token");
-    }
-
-    @PostMapping("/token/api/temporary")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Map<String, String> generateApiToken(@RequestHeader(required = false, value = "Authorization") String jwt1, @RequestBody(required = false) String jwt2) {
-        return this.generateApiToken(jwt1, jwt2, 30);
     }
 
     @PutMapping("/user")

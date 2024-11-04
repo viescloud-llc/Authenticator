@@ -28,7 +28,7 @@ public class UserExpireSchedule {
     private UserService userService;
 
     @Scheduled(fixedDelay = DELAY, initialDelay = INITIAL_DELAY)
-    public void checkLockPlayer() {
+    public void checkLockUser() {
         int maxId = this.userService.getMaxId();
 
         var threadPool = Executors.newCachedThreadPool();

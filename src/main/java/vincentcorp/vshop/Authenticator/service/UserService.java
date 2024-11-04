@@ -135,11 +135,11 @@ public class UserService extends ViesService<Integer, User, UserDao>
     }
 
     @Override
-    public User post(User user) {
+    protected User processingPostInput(User user) {
         if(this.isUsernameExist(user.getUsername()))
             HttpResponseThrowers.throwBadRequest("Username already exist");
         setDefaultUserRole(user);
-        return super.post(user);
+        return super.processingPostInput(user);
     }
 
     private void setDefaultUserRole(User user) {
@@ -158,10 +158,10 @@ public class UserService extends ViesService<Integer, User, UserDao>
     }
 
     @Override
-    public User put(Integer id, User user) {
+    protected User processingPutInput(Integer id, User user) {
         isUsernameExist(id, user);
         user.setPassword(null);
-        return super.put(id, user);
+        return super.processingPutInput(id, user);
     }
 
     public User putUser(Integer id, User user) {
@@ -170,10 +170,10 @@ public class UserService extends ViesService<Integer, User, UserDao>
     }
 
     @Override
-    public User patch(Integer id, User user) {
+    protected User processingPatchInput(Integer id, User user) {
         isUsernameExist(id, user);
         user.setPassword(null);
-        return super.patch(id, user);
+        return super.processingPatchInput(id, user);
     }
 
     public User patchUser(Integer id, User user) {

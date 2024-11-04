@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 public class JwtTest 
 {
 
-    @Test
+    // @Test
     public void JWTGenerator() {
 
     }

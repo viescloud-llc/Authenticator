@@ -1,17 +1,15 @@
 package vincentcorp.vshop.Authenticator.service;
 
-import java.time.Duration;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.google.gson.Gson;
 import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
+import com.viescloud.llc.viesspringutils.util.DateTime;
 import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -21,19 +19,11 @@ import vincentcorp.vshop.Authenticator.util.JwtTokenUtil;
 
 @Service
 @Slf4j
-public class JwtService 
-{
-    public static final String HASH_KEY = "vincentcorp.vshop.Authenticator.jwt";
+public class JwtService {
+    public static final String HASH_JWT_KEY = "vincentcorp.vshop.Authenticator.JwtService.jwt";
+    public static final String HASH_TOKEN_KEY = "vincentcorp.vshop.Authenticator.JwtService.token";
 
-    // @Value("${spring.cache.redis.jwtTTL}")
-    private int jwtTTL = 1200;
-    private int tokenTTL = 30;
-
-    @Autowired
-    private Gson gson;
-
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private Gson gson = new Gson();
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -41,178 +31,156 @@ public class JwtService
     @Autowired
     private UserDao userDao;
 
+    private DatabaseCall<String, String, ?> tokenCache;
+    private DatabaseCall<String, String, ?> jwtCache;
+
+    public JwtService(DatabaseCall<String, String, ?> tokenCache, DatabaseCall<String, String, ?> jwtCache) {
+        this.tokenCache = tokenCache;
+        tokenCache.init(HASH_TOKEN_KEY);
+        tokenCache.setTTL(DateTime.ofSeconds(30));
+
+        this.jwtCache = jwtCache;
+        jwtCache.init(HASH_JWT_KEY);
+        jwtCache.setTTL(DateTime.ofSeconds(1200));
+    }
+
     public void logout(String jwt) {
-        try
-        {
-            if(jwt.toLowerCase().contains("bearer"))
-                jwt = jwt.split(" ")[1];
+        if (jwt.toLowerCase().contains("bearer"))
+            jwt = jwt.split(" ")[1];
 
-            String key = String.format("%s.%s", HASH_KEY, jwt);
-
-            this.redisTemplate.opsForValue().getAndDelete(key);
-        }
-        catch(Exception ex)
-        {
-            HttpResponseThrowers.throwServerError("Redis is down?");
-        }
+        this.jwtCache.delete(jwt);
     }
 
     public boolean tryCheckIsJwtExist(String jwt) {
-        try
-        {
-            if(jwt.toLowerCase().contains("bearer"))
-                jwt = jwt.split(" ")[1];
-
-            this.validateTokenExpiration(jwt);
-
-            return true;
-        }
-        catch(Exception ex)
-        {
+        try {
+            return this.isJwtExist(jwt);
+        } catch (Exception ex) {
             return false;
         }
     }
 
     public boolean isJwtExist(String jwt) {
-        try
-        {
-            if(jwt.toLowerCase().contains("bearer"))
+        try {
+            if (jwt.toLowerCase().contains("bearer"))
                 jwt = jwt.split(" ")[1];
 
-            this.validateTokenExpiration(jwt);
+            this.validateJwtExpiration(jwt);
 
             return true;
-        }
-        catch(ResponseStatusException ex)
-        {
+        } catch (ResponseStatusException ex) {
             throw ex;
-        }
-        catch(Exception ex)
-        {
+        } catch (Exception ex) {
             return (boolean) HttpResponseThrowers.throwServerError("Redis is down?");
         }
     }
 
-    public String generateJwtToken(User user)
-    {
-        try
-        {
-            String jwt = this.jwtTokenUtil.generateToken(user);
-
-            String key = String.format("%s.%s", HASH_KEY, jwt);
-
-            User tempUser = new User();
-            tempUser.setId(user.getId());
-
-            this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(tempUser), Duration.ofSeconds(jwtTTL));
-
-            return jwt;
-        }
-        catch(Exception ex)
-        {
-            return (String) HttpResponseThrowers.throwServerError("Server can't store JWT");
-        }
+    public String generateJwtToken(User user) {
+        String jwt = this.jwtTokenUtil.generateToken(user);
+        User tempUser = new User();
+        tempUser.setId(user.getId());
+        this.generateFrom(jwt, gson.toJson(tempUser), jwtCache, "can't store JWT in redis");
+        return jwt;
     }
 
-    public String generateApiToken(User user) {
-        return this.generateApiToken(user, this.tokenTTL);
+    public String generateToken(User user) {
+        var uuid = java.util.UUID.randomUUID().toString();
+        String token = Sha256PasswordEncoder.encode(uuid);
+        User tempUser = new User();
+        tempUser.setId(user.getId());
+        this.generateFrom(token, gson.toJson(tempUser), tokenCache, "can't store token in redis");
+        return token;
     }
 
-    public String generateApiToken(User user, int ttl) {
-        try {
-            var uuid = java.util.UUID.randomUUID().toString();
-            String token = Sha256PasswordEncoder.encode(uuid);
-            String key = String.format("%s.%s", HASH_KEY, token);
-            User tempUser = new User();
-            tempUser.setId(user.getId());
-            this.redisTemplate.opsForValue().setIfAbsent(key, gson.toJson(tempUser), Duration.ofSeconds(ttl));
-            return token;
-        }
-        catch(Exception ex) {
-            return (String) HttpResponseThrowers.throwServerError("Server can't store API Token");
-        }
+    private String generateFrom(String key, String value, DatabaseCall<String, String, ?> cache, String errorMessage) {
+        var savedValue = cache.saveAndExpire(key, value);
+        if(savedValue == null)
+            HttpResponseThrowers.throwServerError(errorMessage);
+
+        return key;
     }
-    
-    public User getUser(String jwt)
-    {
+
+    public User getUser(String jwt) {
         String type = null;
 
-        if(jwt.toLowerCase().contains("bearer")) {
+        if (jwt.toLowerCase().contains("bearer")) {
             type = "Bearer";
+            jwt = jwt.split(" ")[1];
+            this.validateJwtExpiration(jwt);
+        } else if (jwt.toLowerCase().contains("token")) {
+            type = "Token";
             jwt = jwt.split(" ")[1];
             this.validateTokenExpiration(jwt);
         }
-        else if(jwt.toLowerCase().contains("token")) {
-            type = "Token";
-            jwt = jwt.split(" ")[1];
-            this.validateTokenExpiration(jwt, 30);
-        }
-            
-        if(type.equals("Bearer")) {
-            String username = this.jwtTokenUtil.getUsernameFromToken(jwt);
-            String pwd = this.jwtTokenUtil.getPwdFromToken(jwt);
-            List<User> users = this.userDao.findAllByUsername(username);
-            AtomicInteger userID = new AtomicInteger();
-            users.parallelStream().forEach(u -> {
-                if(u.getUsername().equals(username) && u.getPassword().equals(pwd))
-                    userID.set(u.getId());
-            });
 
-            Optional<User> oUser = userDao.findById(userID.get());
+        if (type.equals("Bearer")) {
+            String jwtUsername = this.jwtTokenUtil.getUsernameFromToken(jwt);
+            String jwtPwd = this.jwtTokenUtil.getPwdFromToken(jwt);
+            int userId = this.getUserFromJwt(jwt).getId();
+            Optional<User> oUser = userDao.findById(userId);
 
-            if(!oUser.isPresent())
+            if (!oUser.isPresent())
                 HttpResponseThrowers.throwUnauthorized("user in token is invalid");
-
-            String tokenPwd = this.jwtTokenUtil.getPwdFromToken(jwt);
 
             User user = oUser.get();
 
-            if(!tokenPwd.equals(user.getPassword()))
+            if (!jwtPwd.equals(user.getPassword()) || !jwtUsername.equals(user.getUsername()))
                 HttpResponseThrowers.throwUnauthorized("Invalid Token");
 
             return user;
-        } 
-        else if(type.equals("Token")) {
-            return this.getUserFromApiToken(jwt);
+        } else if (type.equals("Token")) {
+            int userId = this.getUserFromToken(jwt).getId();
+            Optional<User> oUser = userDao.findById(userId);
+
+            if (!oUser.isPresent())
+                HttpResponseThrowers.throwUnauthorized("user in token is invalid");
+
+            return oUser.get();
         }
 
-        return (User) HttpResponseThrowers.throwUnauthorized("Invalid Token");
+        return (User) HttpResponseThrowers.throwUnauthorized("Invalid Token Type");
     }
 
-    public void validateTokenExpiration(String jwt) {
-        this.validateTokenExpiration(jwt, jwtTTL);
+    public void validateJwtExpiration(String jwt) {
+        this.validateExpiration(jwt, jwtCache, "JWT is invalid or expired");
     }
 
-    public void validateTokenExpiration(String jwt, int ttl) {
+    public void validateTokenExpiration(String token) {
+        this.validateExpiration(token, tokenCache, "token is invalid or expired");
+    }
+
+    public void validateExpiration(String key, DatabaseCall<String, String, ?> cache, String errorMessage) {
         boolean isExpired;
-        try
-        {
-            // isExpired = this.jwtTokenUtil.isTokenExpired(jwt);
-            String key = String.format("%s.%s", HASH_KEY, jwt);
 
-            String object = this.redisTemplate.opsForValue().getAndExpire(key, Duration.ofSeconds(ttl));
-
+        try {
+            String object = cache.getAndExpire(key);
             isExpired = object == null;
-        }
-        catch(Exception ex)
-        {
+        } catch (Exception ex) {
             isExpired = true;
         }
 
-        if(isExpired)
-            HttpResponseThrowers.throwUnauthorized("JWT token is invalid or expired");
+        if (isExpired)
+            HttpResponseThrowers.throwUnauthorized(errorMessage);
     }
 
-    private User getUserFromApiToken(String token) {
+    private User getUserFromJwt(String jwt) {
+        return this.getUserFrom(jwt, jwtCache);
+    }
+
+    private User getUserFromToken(String token) {
+        return this.getUserFrom(token, tokenCache);
+    }
+
+    private User getUserFrom(String key, DatabaseCall<String, String, ?> cache) {
         try {
-            String key = String.format("%s.%s", HASH_KEY, token);
-            String object = this.redisTemplate.opsForValue().get(key);
-            User user = gson.fromJson(object, User.class);
-            return this.userDao.findById(user.getId()).orElseThrow(() -> HttpResponseThrowers.throwServerErrorException("can't get user from api token"));
+            String object = cache.getAndExpire(key);
+            var user = gson.fromJson(object, User.class);
+            return this.userDao.findById(user.getId())
+                    .orElseThrow(() -> HttpResponseThrowers.throwServerErrorException("can't get user from api token"));
         }
         catch(Exception ex) {
             log.error(ex.getMessage(), ex);
-            return (User) HttpResponseThrowers.throwServerError("can't get user from api token");
+            return (User) HttpResponseThrowers.throwServerError("can't get user from redis cache");
         }
+        
     }
 }

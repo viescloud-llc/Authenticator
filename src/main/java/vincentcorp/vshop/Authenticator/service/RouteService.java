@@ -19,8 +19,8 @@ public class RouteService extends ViesService<Integer, Route, RouteDao> {
     @Autowired
     private RoleService roleService;
 
-    public RouteService(DatabaseCall<Integer, Route, RouteDao> databaseCall) {
-        super(databaseCall);
+    public RouteService(DatabaseCall<Integer, Route, RouteDao> databaseCall, RouteDao routeDao) {
+        super(databaseCall, routeDao);
     }
 
     @Override

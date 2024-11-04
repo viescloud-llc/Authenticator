@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.vincent.inc.viesspringutils.interfaces.Hashing;
+import com.viescloud.llc.viesspringutils.interfaces.Hashing;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -27,8 +27,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class User implements Serializable
-{
+public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
-import com.vincent.inc.viesspringutils.service.ViesService;
-import com.vincent.inc.viesspringutils.util.DatabaseCall;
-import com.vincent.inc.viesspringutils.util.DateTime;
-import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
+import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
+import com.viescloud.llc.viesspringutils.service.ViesService;
+import com.viescloud.llc.viesspringutils.util.DateTime;
+import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
 
 import io.micrometer.common.util.StringUtils;
 import vincentcorp.vshop.Authenticator.dao.RoleDao;
@@ -24,15 +24,15 @@ import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.openId.OpenIdUserInfoResponse;
 
 @Service
-public class UserService extends ViesService<User, Integer, UserDao>
+public class UserService extends ViesService<Integer, User, UserDao>
 {
     public static final String NORMAL = "NORMAL";
 
     @Autowired
     private RoleDao roleDao;
 
-    public UserService(DatabaseCall<User, Integer> databaseUtils, UserDao repositoryDao) {
-        super(databaseUtils, repositoryDao);
+    public UserService(DatabaseCall<Integer, User, UserDao> databaseUtils) {
+        super(databaseUtils);
     }
 
     public int getMaxId()
@@ -191,7 +191,7 @@ public class UserService extends ViesService<User, Integer, UserDao>
     }
 
     public void deleteUser(int id) {
-        this.databaseCall.deleteById(id);
+        this.databaseCall.deleteByKey(id);
     }
 
     public boolean hasAnyAuthority(User user, List<String> roles)

@@ -17,33 +17,32 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserProfile implements Serializable
-{
+public class UserProfile implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
+
     @Column(length = 100)
     private String alias;
-    
+
     @Column(length = 100)
     private String firstName;
-    
+
     @Column(length = 100)
     private String lastName;
-    
+
     @Column(length = 20)
     private String phoneNumber;
-    
-    @Column
+
+    @Column(length = 500)
     private String address;
-    
+
     @Column(length = 50)
     private String city;
-    
+
     @Column(length = 50)
     private String state;
-    
+
     @Column(length = 10)
     private String zip;
 }

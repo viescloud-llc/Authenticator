@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Jwt implements Serializable
-{
+public class Jwt implements Serializable {
     private String jwt;
 }

@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
-import com.vincent.inc.viesspringutils.interfaces.RemoveHashing;
-import com.vincent.inc.viesspringutils.interfaces.InputHashing;
+import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.llc.viesspringutils.interfaces.RemoveHashing;
+import com.viescloud.llc.viesspringutils.interfaces.InputHashing;
 
 import io.swagger.v3.oas.annotations.Operation;
 import vincentcorp.vshop.Authenticator.model.User;

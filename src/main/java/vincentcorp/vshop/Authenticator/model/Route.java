@@ -23,20 +23,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Route implements Serializable
-{
+public class Route implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    
-    @Column
+
+    @Column(length = 2000)
     private String path;
 
     @Column(length = 20)
     private String method;
 
     @Builder.Default
-    @Column()
+    @Column(columnDefinition = "BIT(1) default false")
     private boolean secure = false;
 
     @ManyToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER)

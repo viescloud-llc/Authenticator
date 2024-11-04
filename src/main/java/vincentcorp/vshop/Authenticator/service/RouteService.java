@@ -7,20 +7,20 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.vincent.inc.viesspringutils.service.ViesService;
-import com.vincent.inc.viesspringutils.util.DatabaseCall;
+import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
+import com.viescloud.llc.viesspringutils.service.ViesService;
 import vincentcorp.vshop.Authenticator.dao.RouteDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.Route;
 
 @Service
-public class RouteService extends ViesService<Route, Integer, RouteDao> {
+public class RouteService extends ViesService<Integer, Route, RouteDao> {
 
     @Autowired
     private RoleService roleService;
 
-    public RouteService(DatabaseCall<Route, Integer> databaseCall, RouteDao repositoryDao) {
-        super(databaseCall, repositoryDao);
+    public RouteService(DatabaseCall<Integer, Route, RouteDao> databaseCall) {
+        super(databaseCall);
     }
 
     @Override

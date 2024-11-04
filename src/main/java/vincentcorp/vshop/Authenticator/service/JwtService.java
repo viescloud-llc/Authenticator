@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.google.gson.Gson;
-import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
-import com.vincent.inc.viesspringutils.util.Sha256PasswordEncoder;
+import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
 
 import lombok.extern.slf4j.Slf4j;
 import vincentcorp.vshop.Authenticator.dao.UserDao;

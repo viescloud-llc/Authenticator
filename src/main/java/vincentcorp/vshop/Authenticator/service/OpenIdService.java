@@ -13,8 +13,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import com.vincent.inc.viesspringutils.exception.HttpResponseThrowers;
-import com.vincent.inc.viesspringutils.util.WebCall;
+import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.llc.viesspringutils.util.WebCall;
 
 import vincentcorp.vshop.Authenticator.model.openId.OpenIdAccessTokenResponse;
 import vincentcorp.vshop.Authenticator.model.openId.OpenIdRequest;

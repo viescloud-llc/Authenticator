@@ -1,6 +1,6 @@
 package vincentcorp.vshop.Authenticator.model;
 
-import com.vincent.inc.viesspringutils.util.DateTime;
+import com.viescloud.llc.viesspringutils.util.DateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

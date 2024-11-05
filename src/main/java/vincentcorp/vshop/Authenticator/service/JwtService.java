@@ -111,6 +111,9 @@ public class JwtService {
             jwt = jwt.split(" ")[1];
             this.validateTokenExpiration(jwt);
         }
+        else {
+            return (User) HttpResponseThrowers.throwUnauthorized("Invalid Token Type");
+        }
 
         if (type.equals("Bearer")) {
             String jwtUsername = this.jwtTokenUtil.getUsernameFromToken(jwt);

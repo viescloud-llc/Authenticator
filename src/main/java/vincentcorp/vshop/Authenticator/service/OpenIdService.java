@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -35,6 +36,9 @@ public class OpenIdService {
     @Value("${openId.uri.userInfo}")
     private String openIdUserInfoUri;
 
+    @Value("${spring.profiles.active}")
+    private String env = "?";
+
     @Autowired
     private RestTemplate restTemplate;
     
@@ -47,7 +51,9 @@ public class OpenIdService {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(headers);
 
         var response = WebCall.of(restTemplate, OpenIdUserInfoResponse.class)
-                              .get(uri, entity);
+                              .logRequest(!this.env.equalsIgnoreCase("prod"))
+                              .exchange(uri, HttpMethod.GET, entity)
+                              .getOptionalResponseBody();
 
         if(!response.isPresent())
             HttpResponseThrowers.throwServerError("server encounter unknown error when trying to get user info with openId");
@@ -70,7 +76,9 @@ public class OpenIdService {
         HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
 
         var response = WebCall.of(restTemplate, OpenIdAccessTokenResponse.class)
-                              .post(uri, entity);
+                              .logRequest(!env.equalsIgnoreCase("prod"))
+                              .exchange(uri, HttpMethod.POST, entity)
+                              .getOptionalResponseBody();
 
         if(!response.isPresent())
             HttpResponseThrowers.throwServerError("server encounter unknown error when trying to authenticate with openId");

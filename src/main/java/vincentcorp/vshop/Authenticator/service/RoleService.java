@@ -11,7 +11,7 @@ import vincentcorp.vshop.Authenticator.model.Role;
 @Service
 public class RoleService extends ViesService<Integer, Role, RoleDao> {
 
-    public RoleService(DatabaseCall<Integer, Role, RoleDao> databaseCall, RoleDao roleDao) {
+    public RoleService(DatabaseCall<Integer, Role> databaseCall, RoleDao roleDao) {
         super(databaseCall, roleDao);
     }
 

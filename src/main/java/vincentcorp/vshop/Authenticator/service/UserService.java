@@ -31,7 +31,7 @@ public class UserService extends ViesService<Integer, User, UserDao>
     @Autowired
     private RoleDao roleDao;
 
-    public UserService(DatabaseCall<Integer, User, UserDao> databaseUtils, UserDao repositoryDao) {
+    public UserService(DatabaseCall<Integer, User> databaseUtils, UserDao repositoryDao) {
         super(databaseUtils, repositoryDao);
     }
 

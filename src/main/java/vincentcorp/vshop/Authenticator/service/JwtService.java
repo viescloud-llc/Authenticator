@@ -31,17 +31,15 @@ public class JwtService {
     @Autowired
     private UserDao userDao;
 
-    private DatabaseCall<String, String, ?> tokenCache;
-    private DatabaseCall<String, String, ?> jwtCache;
+    private DatabaseCall<String, String> tokenCache;
+    private DatabaseCall<String, String> jwtCache;
 
-    public JwtService(DatabaseCall<String, String, ?> tokenCache, DatabaseCall<String, String, ?> jwtCache) {
+    public JwtService(DatabaseCall<String, String> tokenCache, DatabaseCall<String, String> jwtCache) {
         this.tokenCache = tokenCache;
-        tokenCache.init(HASH_TOKEN_KEY);
-        tokenCache.setTTL(DateTime.ofSeconds(30));
+        tokenCache.hashes(HASH_TOKEN_KEY).ttl(DateTime.ofSeconds(30));
 
         this.jwtCache = jwtCache;
-        jwtCache.init(HASH_JWT_KEY);
-        jwtCache.setTTL(DateTime.ofSeconds(1200));
+        jwtCache.hashes(HASH_JWT_KEY).ttl(DateTime.ofSeconds(1200));
     }
 
     public void logout(String jwt) {
@@ -91,7 +89,7 @@ public class JwtService {
         return token;
     }
 
-    private String generateFrom(String key, String value, DatabaseCall<String, String, ?> cache, String errorMessage) {
+    private String generateFrom(String key, String value, DatabaseCall<String, String> cache, String errorMessage) {
         var savedValue = cache.saveAndExpire(key, value);
         if(savedValue == null)
             HttpResponseThrowers.throwServerError(errorMessage);
@@ -151,7 +149,7 @@ public class JwtService {
         this.validateExpiration(token, tokenCache, "token is invalid or expired");
     }
 
-    public void validateExpiration(String key, DatabaseCall<String, String, ?> cache, String errorMessage) {
+    public void validateExpiration(String key, DatabaseCall<String, String> cache, String errorMessage) {
         boolean isExpired;
 
         try {
@@ -173,7 +171,7 @@ public class JwtService {
         return this.getUserFrom(token, tokenCache);
     }
 
-    private User getUserFrom(String key, DatabaseCall<String, String, ?> cache) {
+    private User getUserFrom(String key, DatabaseCall<String, String> cache) {
         try {
             String object = cache.getAndExpire(key);
             var user = gson.fromJson(object, User.class);

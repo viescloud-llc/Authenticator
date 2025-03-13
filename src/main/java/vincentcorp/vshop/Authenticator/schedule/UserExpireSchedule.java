@@ -2,6 +2,7 @@ package vincentcorp.vshop.Authenticator.schedule;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
@@ -35,7 +36,7 @@ public class UserExpireSchedule {
         List<Future<User>> futures = new ArrayList<>();
         
         for (int i = 1; i <= maxId; i++) {
-            User user = userService.tryGetById(i);
+            User user = userService.tryGetById((long) i);
 
             if(!ObjectUtils.isEmpty(user)) {
                 futures.add(threadPool.submit(new CheckUser(user)));
@@ -67,7 +68,7 @@ public class UserExpireSchedule {
         public User call() throws Exception {
             DateTime now = DateTime.now();
             
-            if(this.user.isExpirable() && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().isBefore(now)) {
+            if(Optional.ofNullable(this.user.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().isBefore(now)) {
                 this.user.setEnable(false);
                 this.user.setExpireTime(null);
                 this.user.setExpirable(false);
@@ -75,7 +76,7 @@ public class UserExpireSchedule {
 
             if(!ObjectUtils.isEmpty(user.getUserApis()))
                 user.getUserApis().forEach(api -> {
-                    if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
+                    if(Optional.ofNullable(api.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
                         api.setEnable(false);
                         api.setExpireTime(null);
                         api.setExpirable(false);

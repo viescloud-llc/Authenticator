@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.llc.viesspringutils.interfaces.InputHashing;
-import com.viescloud.llc.viesspringutils.interfaces.RemoveHashing;
+import com.viescloud.llc.viesspringutils.util.ReflectionUtils;
 
 import vincentcorp.vshop.Authenticator.model.Jwt;
 import vincentcorp.vshop.Authenticator.model.User;
@@ -120,20 +119,18 @@ public class AuthenticationController
     }
 
     @PutMapping("/user")
-    @InputHashing
-    @RemoveHashing
     public User modifyUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
+        user = ReflectionUtils.encodingObject(user);
         User jUser = this.jwtService.getUser(jwt);
         var response = this.userService.put(jUser.getId(), user);
-        return response;
+        return ReflectionUtils.decodingObject(response);
     }
 
     @PatchMapping("/user")
-    @InputHashing
-    @RemoveHashing
     public User patchUser(@RequestHeader("Authorization") String jwt, @RequestBody User user) {
+        user = ReflectionUtils.encodingObject(user);
         User jUser = this.jwtService.getUser(jwt);
         var response = this.userService.patch(jUser.getId(), user);
-        return response;
+        return ReflectionUtils.decodingObject(response);
     }
 }

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import vincentcorp.vshop.Authenticator.model.Role;
 
-public interface RoleDao extends JpaRepository<Role, Integer> {
+public interface RoleDao extends JpaRepository<Role, Long> {
 public Role findByName(String name);
 	public List<Role> findAllByName(String name);
 

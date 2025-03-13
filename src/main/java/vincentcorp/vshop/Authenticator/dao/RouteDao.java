@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import vincentcorp.vshop.Authenticator.model.Route;
 
-public interface RouteDao extends JpaRepository<Route, Integer>
+public interface RouteDao extends JpaRepository<Route, Long>
 {
 	public Route findByPath(String path);
 	public List<Route> findAllByPath(String path);

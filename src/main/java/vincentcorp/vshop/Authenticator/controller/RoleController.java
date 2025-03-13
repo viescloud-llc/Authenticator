@@ -10,7 +10,7 @@ import vincentcorp.vshop.Authenticator.service.RoleService;
 
 @RestController
 @RequestMapping("/roles")
-class RoleController extends ViesController<Integer, Role, RoleService> {
+class RoleController extends ViesController<Long, Role, RoleService> {
 
     public RoleController(RoleService service) {
         super(service);

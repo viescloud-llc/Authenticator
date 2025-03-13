@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import vincentcorp.vshop.Authenticator.model.User;
 
-public interface UserDao extends JpaRepository<User, Integer>
+public interface UserDao extends JpaRepository<User, Long>
 {
 	public User findBySub(String sub);
 	public List<User> findAllBySub(String sub);

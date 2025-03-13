@@ -2,42 +2,39 @@ package vincentcorp.vshop.Authenticator.model;
 
 import java.io.Serializable;
 
-import jakarta.persistence.CascadeType;
+import com.viescloud.llc.viesspringutils.config.jpa.BooleanConverter;
+import com.viescloud.llc.viesspringutils.config.jpa.DateTimeConverter;
+import com.viescloud.llc.viesspringutils.util.DateTime;
+
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "user_api")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Embeddable
 public class UserApi implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
-    @Column(length = 100)
+    @Column(columnDefinition = "TEXT")
     private String name;
 
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String apiKey;
 
-    @Column(columnDefinition = "BIT(1) default false")
-    private boolean expirable = false;
+    @Column(length = 10)
+    @Convert(converter = BooleanConverter.class)
+    private Boolean expirable = false;
 
-    @Column(columnDefinition = "BIT(1) default true")
-    private boolean enable = true;
+    @Column(length = 10)
+    @Convert(converter = BooleanConverter.class)
+    private Boolean enable = true;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private TimeModel expireTime;
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = DateTimeConverter.class)
+    private DateTime expireTime;
 }

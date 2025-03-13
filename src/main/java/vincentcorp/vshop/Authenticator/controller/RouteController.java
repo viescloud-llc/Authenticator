@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/routes")
-class RouteController extends ViesController<Integer, Route, RouteService> {
+class RouteController extends ViesController<Long, Route, RouteService> {
 
     public RouteController(RouteService service) {
         super(service);

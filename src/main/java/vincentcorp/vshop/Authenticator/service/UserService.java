@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,14 +24,14 @@ import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.openId.OpenIdUserInfoResponse;
 
 @Service
-public class UserService extends ViesService<Integer, User, UserDao>
+public class UserService extends ViesService<Long, User, UserDao>
 {
     public static final String NORMAL = "NORMAL";
 
     @Autowired
     private RoleDao roleDao;
 
-    public UserService(DatabaseCall<Integer, User> databaseUtils, UserDao repositoryDao) {
+    public UserService(DatabaseCall<Long, User> databaseUtils, UserDao repositoryDao) {
         super(databaseUtils, repositoryDao);
     }
 
@@ -59,7 +59,7 @@ public class UserService extends ViesService<Integer, User, UserDao>
         return users != null && users.parallelStream().anyMatch(user -> user.getUsername().equals(username));
     }
 
-    private void isUsernameExist(Integer id, User user) {
+    private void isUsernameExist(Long id, User user) {
         User oldUser = this.getById(id);
 
         if(!oldUser.getUsername().equals(user.getUsername()) && this.isUsernameExist(user.getUsername()))
@@ -114,7 +114,7 @@ public class UserService extends ViesService<Integer, User, UserDao>
     {
         user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
         List<User> users = this.repositoryDao.findAllByUsername(user.getUsername());
-        AtomicInteger userID = new AtomicInteger();
+        AtomicLong userID = new AtomicLong();
         users.parallelStream().forEach(u -> {
             if(u.getUsername().equals(user.getUsername()) && u.getPassword().equals(user.getPassword()))
                 userID.set(u.getId());
@@ -158,25 +158,25 @@ public class UserService extends ViesService<Integer, User, UserDao>
     }
 
     @Override
-    protected User processingPutInput(Integer id, User user) {
+    protected User processingPutInput(Long id, User user) {
         isUsernameExist(id, user);
         user.setPassword(null);
         return super.processingPutInput(id, user);
     }
 
-    public User putUser(Integer id, User user) {
+    public User putUser(Long id, User user) {
         isUsernameExist(id, user);
         return super.put(id, user);
     }
 
     @Override
-    protected User processingPatchInput(Integer id, User user) {
+    protected User processingPatchInput(Long id, User user) {
         isUsernameExist(id, user);
         user.setPassword(null);
         return super.processingPatchInput(id, user);
     }
 
-    public User patchUser(Integer id, User user) {
+    public User patchUser(Long id, User user) {
         isUsernameExist(id, user);
         return super.patch(id, user);
     }
@@ -190,7 +190,7 @@ public class UserService extends ViesService<Integer, User, UserDao>
         }
     }
 
-    public void deleteUser(int id) {
+    public void deleteUser(long id) {
         this.databaseCall.deleteByKey(id);
     }
 
@@ -207,7 +207,7 @@ public class UserService extends ViesService<Integer, User, UserDao>
     public boolean checkUserExpire(User user) {
         DateTime now = DateTime.now();
 
-        if(user.isExpirable() && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().isBefore(now)) {
+        if(Optional.ofNullable(user.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().isBefore(now)) {
             user.setEnable(false);
             user.setExpireTime(null);
             user.setExpirable(false);
@@ -215,7 +215,7 @@ public class UserService extends ViesService<Integer, User, UserDao>
 
         if(!ObjectUtils.isEmpty(user.getUserApis()))
             user.getUserApis().forEach(api -> {
-                if(api.isExpirable() && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
+                if(Optional.ofNullable(api.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
                     api.setEnable(false);
                     api.setExpireTime(null);
                     api.setExpirable(false);
@@ -224,11 +224,16 @@ public class UserService extends ViesService<Integer, User, UserDao>
 
         this.repositoryDao.save(user);
 
-        return !user.isEnable();
+        return !Optional.ofNullable(user.getExpirable()).orElse(false);
     }
 
     @Override
     protected User newEmptyObject() {
         return new User();
+    }
+
+    @Override
+    public Long getIdFieldValue(User object) {
+        return object.getId();
     }
 }

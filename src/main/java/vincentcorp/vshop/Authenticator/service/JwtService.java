@@ -116,7 +116,7 @@ public class JwtService {
         if (type.equals("Bearer")) {
             String jwtUsername = this.jwtTokenUtil.getUsernameFromToken(jwt);
             String jwtPwd = this.jwtTokenUtil.getPwdFromToken(jwt);
-            int userId = this.getUserFromJwt(jwt).getId();
+            long userId = this.getUserFromJwt(jwt).getId();
             Optional<User> oUser = userDao.findById(userId);
 
             if (!oUser.isPresent())
@@ -129,7 +129,7 @@ public class JwtService {
 
             return user;
         } else if (type.equals("Token")) {
-            int userId = this.getUserFromToken(jwt).getId();
+            long userId = this.getUserFromToken(jwt).getId();
             Optional<User> oUser = userDao.findById(userId);
 
             if (!oUser.isPresent())
@@ -176,7 +176,7 @@ public class JwtService {
             String object = cache.getAndExpire(key);
             var user = gson.fromJson(object, User.class);
             return this.userDao.findById(user.getId())
-                    .orElseThrow(() -> HttpResponseThrowers.throwServerErrorException("can't get user from api token"));
+                    .orElseThrow(HttpResponseThrowers.throwServerErrorException("can't get user from api token"));
         }
         catch(Exception ex) {
             log.error(ex.getMessage(), ex);

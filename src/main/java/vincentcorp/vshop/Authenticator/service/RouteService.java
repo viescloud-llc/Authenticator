@@ -14,12 +14,12 @@ import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.Route;
 
 @Service
-public class RouteService extends ViesService<Integer, Route, RouteDao> {
+public class RouteService extends ViesService<Long, Route, RouteDao> {
 
     @Autowired
     private RoleService roleService;
 
-    public RouteService(DatabaseCall<Integer, Route> databaseCall, RouteDao routeDao) {
+    public RouteService(DatabaseCall<Long, Route> databaseCall, RouteDao routeDao) {
         super(databaseCall, routeDao);
     }
 
@@ -43,7 +43,7 @@ public class RouteService extends ViesService<Integer, Route, RouteDao> {
                     assignRoles.add(foundedRoles.get(0));
                 }
                 else {
-                    r.setId(0);
+                    r.setId(0L);
                     Role role = this.roleService.post(r);
                     assignRoles.add(role);
                     roles.add(role);
@@ -64,5 +64,10 @@ public class RouteService extends ViesService<Integer, Route, RouteDao> {
         currentRoutes.parallelStream().forEach(e -> this.delete(e.getId()));
 
         return this.getAll();
+    }
+
+    @Override
+    public Long getIdFieldValue(Route object) {
+        return object.getId();
     }
 }

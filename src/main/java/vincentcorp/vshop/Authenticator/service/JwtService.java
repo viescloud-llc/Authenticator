@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.google.gson.Gson;
 import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
 import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
 import com.viescloud.llc.viesspringutils.util.DateTime;
+import com.viescloud.llc.viesspringutils.util.Json;
 import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +22,6 @@ import vincentcorp.vshop.Authenticator.util.JwtTokenUtil;
 public class JwtService {
     public static final String HASH_JWT_KEY = "vincentcorp.vshop.Authenticator.JwtService.jwt";
     public static final String HASH_TOKEN_KEY = "vincentcorp.vshop.Authenticator.JwtService.token";
-
-    private Gson gson = new Gson();
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -76,7 +74,7 @@ public class JwtService {
         String jwt = this.jwtTokenUtil.generateToken(user);
         User tempUser = new User();
         tempUser.setId(user.getId());
-        this.generateFrom(jwt, gson.toJson(tempUser), jwtCache, "can't store JWT in redis");
+        this.generateFrom(jwt, Json.toJson(tempUser), jwtCache, "can't store JWT in redis");
         return jwt;
     }
 
@@ -85,7 +83,7 @@ public class JwtService {
         String token = Sha256PasswordEncoder.encode(uuid);
         User tempUser = new User();
         tempUser.setId(user.getId());
-        this.generateFrom(token, gson.toJson(tempUser), tokenCache, "can't store token in redis");
+        this.generateFrom(token, Json.toJson(tempUser), tokenCache, "can't store token in redis");
         return token;
     }
 
@@ -174,7 +172,7 @@ public class JwtService {
     private User getUserFrom(String key, DatabaseCall<String, String> cache) {
         try {
             String object = cache.getAndExpire(key);
-            var user = gson.fromJson(object, User.class);
+            var user = Json.fromJson(object, User.class);
             return this.userDao.findById(user.getId())
                     .orElseThrow(HttpResponseThrowers.throwServerErrorException("can't get user from api token"));
         }

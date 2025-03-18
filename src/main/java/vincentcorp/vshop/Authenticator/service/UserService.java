@@ -2,10 +2,7 @@ package vincentcorp.vshop.Authenticator.service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -13,7 +10,6 @@ import org.springframework.util.ObjectUtils;
 import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
 import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
 import com.viescloud.llc.viesspringutils.service.ViesService;
-import com.viescloud.llc.viesspringutils.util.DateTime;
 import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
 
 import io.micrometer.common.util.StringUtils;
@@ -22,6 +18,7 @@ import vincentcorp.vshop.Authenticator.dao.UserDao;
 import vincentcorp.vshop.Authenticator.model.Role;
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.model.openId.OpenIdUserInfoResponse;
+import vincentcorp.vshop.Authenticator.schedule.UserExpireSchedule;
 
 @Service
 public class UserService extends ViesService<Long, User, UserDao>
@@ -35,9 +32,9 @@ public class UserService extends ViesService<Long, User, UserDao>
         super(databaseUtils, repositoryDao);
     }
 
-    public int getMaxId()
+    public long getMaxId()
     {
-        int maxId = 0;
+        long maxId = 0;
         try {
             maxId = this.repositoryDao.getMaxId();
         }
@@ -112,26 +109,21 @@ public class UserService extends ViesService<Long, User, UserDao>
 
     public User login(User user)
     {
-        user.setPassword(Sha256PasswordEncoder.encode(user.getPassword()));
-        List<User> users = this.repositoryDao.findAllByUsername(user.getUsername());
-        AtomicLong userID = new AtomicLong();
-        users.parallelStream().forEach(u -> {
-            if(u.getUsername().equals(user.getUsername()) && u.getPassword().equals(user.getPassword()))
-                userID.set(u.getId());
-        });
-
-        Optional<User> oUser = repositoryDao.findById(userID.get());
-
-        if(oUser.isEmpty())
-            HttpResponseThrowers.throwBadRequest("Invalid username or password");
-
-        User nUser = oUser.get();
+        var dbUser = this.repositoryDao.findAllByUsername(user.getUsername())
+                                       .parallelStream()
+                                       .filter(e -> {
+                                            var matchPassword = e.getUsername().equals(user.getUsername()) && e.getPassword().equals(user.getPassword());
+                                            var matchApiKey = e.getUserApis() != null && e.getUserApis().parallelStream().anyMatch(api -> api.getApiKey() != null && api.getApiKey().equals(user.getPassword()));
+                                            return matchPassword || matchApiKey;
+                                        })
+                                       .findFirst()
+                                       .orElseThrow(HttpResponseThrowers.throwConflictException("Invalid username or password"));
         
-        if(this.checkUserExpire(nUser)) {
+        if(UserExpireSchedule.isUserExpire(dbUser, this)) {
             return (User) HttpResponseThrowers.throwForbidden("User is expire/lock, please contact administration");
         }
 
-        return nUser;
+        return dbUser;
     }
 
     @Override
@@ -202,29 +194,6 @@ public class UserService extends ViesService<Long, User, UserDao>
     public boolean hasAllAuthority(User user, List<String> roles)
     {
         return roles.stream().allMatch(r -> user.getUserRoles().parallelStream().anyMatch(ur -> ur.getName().equals(r)));
-    }
-
-    public boolean checkUserExpire(User user) {
-        DateTime now = DateTime.now();
-
-        if(Optional.ofNullable(user.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(user.getExpireTime())  && user.getExpireTime().isBefore(now)) {
-            user.setEnable(false);
-            user.setExpireTime(null);
-            user.setExpirable(false);
-        }
-
-        if(!ObjectUtils.isEmpty(user.getUserApis()))
-            user.getUserApis().forEach(api -> {
-                if(Optional.ofNullable(api.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
-                    api.setEnable(false);
-                    api.setExpireTime(null);
-                    api.setExpirable(false);
-                }
-            });
-
-        this.repositoryDao.save(user);
-
-        return !Optional.ofNullable(user.getExpirable()).orElse(false);
     }
 
     @Override

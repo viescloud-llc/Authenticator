@@ -38,5 +38,5 @@ public interface UserDao extends JpaRepository<User, Long>
 	public List<User> getAllByMatchAny(@Param("username") String username, @Param("password") String password);
 
 	@Query(value = "SELECT max(id) as maxId FROM user;", nativeQuery = true)
-	public int getMaxId();
+	public Long getMaxId();
 }

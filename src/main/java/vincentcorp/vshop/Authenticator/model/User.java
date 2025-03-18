@@ -6,7 +6,9 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.viescloud.llc.viesspringutils.config.jpa.BooleanConverter;
 import com.viescloud.llc.viesspringutils.config.jpa.DateTimeConverter;
+import com.viescloud.llc.viesspringutils.interfaces.annotation.Decoding;
 import com.viescloud.llc.viesspringutils.interfaces.annotation.Encoding;
+import com.viescloud.llc.viesspringutils.model.DecodingType;
 import com.viescloud.llc.viesspringutils.model.EncodingType;
 import com.viescloud.llc.viesspringutils.util.DateTime;
 
@@ -34,7 +36,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements Serializable {
     @Id
-    @Column(columnDefinition = "TEXT")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -52,6 +53,7 @@ public class User implements Serializable {
 
     @Column(columnDefinition = "TEXT")
     @Encoding(EncodingType.SHA256)
+    @Decoding(DecodingType.NULL)
     private String password;
 
     @Embedded
@@ -60,7 +62,7 @@ public class User implements Serializable {
     @ManyToMany(cascade = {CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.EAGER)
     private List<Role> userRoles;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<UserApi> userApis;
 
     @Column(length = 10)

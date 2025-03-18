@@ -68,6 +68,10 @@ public class AuthenticationController
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Jwt> login(@RequestBody User user)
     {
+        if (user.getUsername() == null || user.getPassword() == null)
+            return HttpResponseThrowers.throwBadRequest("Missing/invalid username or password");
+
+        user = ReflectionUtils.encodingObject(user);
         user = this.userService.login(user);
         return getJwtResponse(user);
     }

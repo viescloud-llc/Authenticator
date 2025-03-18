@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Embeddable
 public class UserProfile implements Serializable {
+
     @Column(columnDefinition = "TEXT")
     private String alias;
 

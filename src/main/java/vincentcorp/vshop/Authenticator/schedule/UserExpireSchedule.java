@@ -1,12 +1,6 @@
 package vincentcorp.vshop.Authenticator.schedule;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +8,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.ObjectUtils;
 
+import com.viescloud.llc.viesspringutils.util.Booleans;
 import com.viescloud.llc.viesspringutils.util.DateTime;
+import com.viescloud.llc.viesspringutils.util.MultiTask;
 
 import vincentcorp.vshop.Authenticator.model.User;
 import vincentcorp.vshop.Authenticator.service.UserService;
@@ -24,67 +20,59 @@ import vincentcorp.vshop.Authenticator.service.UserService;
 public class UserExpireSchedule {
     private final long DELAY = 24 * 60 * 60 * 1000; //1 day
     private final long INITIAL_DELAY = 60000; //60s
+    private final MultiTask<Integer> multiTask = MultiTask.of(0).maxThread(10); 
 
     @Autowired
     private UserService userService;
 
     @Scheduled(fixedDelay = DELAY, initialDelay = INITIAL_DELAY)
     public void checkLockUser() {
-        int maxId = this.userService.getMaxId();
-
-        var threadPool = Executors.newCachedThreadPool();
-        List<Future<User>> futures = new ArrayList<>();
+        long maxId = this.userService.getMaxId();
         
         for (int i = 1; i <= maxId; i++) {
-            User user = userService.tryGetById((long) i);
-
-            if(!ObjectUtils.isEmpty(user)) {
-                futures.add(threadPool.submit(new CheckUser(user)));
-            }
+            var id = i;
+            this.multiTask.submitTask(() -> this.checkUser(id));
         }
+    }
 
-        futures.parallelStream().forEach(f -> {
-            while(!f.isDone()) {}
-
-            try {
-                User user = f.get();
-                this.userService.patch(user.getId(), user);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            }
+    private void checkUser(int id) {
+        userService.getByIdOptional((long) id).ifPresent(user -> {
+            isUserExpire(user, userService);
         });
     }
 
-    class CheckUser implements Callable<User> {
-        private User user;
-
-        public CheckUser(User user) {
-            this.user = user;
+    public static boolean isUserExpire(User user, UserService userService) {
+        if (user == null) {
+            return true;
         }
 
-        @Override
-        public User call() throws Exception {
-            DateTime now = DateTime.now();
+        DateTime now = DateTime.now();
+        boolean isExpire = false;
+        AtomicBoolean isChange = new AtomicBoolean(false);
             
-            if(Optional.ofNullable(this.user.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(this.user.getExpireTime())  && this.user.getExpireTime().isBefore(now)) {
-                this.user.setEnable(false);
-                this.user.setExpireTime(null);
-                this.user.setExpirable(false);
-            }
-
-            if(!ObjectUtils.isEmpty(user.getUserApis()))
-                user.getUserApis().forEach(api -> {
-                    if(Optional.ofNullable(api.getExpirable()).orElse(false) && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
-                        api.setEnable(false);
-                        api.setExpireTime(null);
-                        api.setExpirable(false);
-                    }
-                });
-
-            return this.user;
+        if(Booleans.isTrue(user.getExpirable()) && !ObjectUtils.isEmpty(user.getExpireTime()) && user.getExpireTime().isBefore(now)) {
+            user.setEnable(false);
+            user.setExpireTime(null);
+            user.setExpirable(false);
+            isExpire = true;
+            isChange.set(true);
         }
 
+        if(!ObjectUtils.isEmpty(user.getUserApis())) {
+            user.getUserApis().forEach(api -> {
+                if(Booleans.isTrue(api.getExpirable()) && !ObjectUtils.isEmpty(api.getExpireTime())  && api.getExpireTime().isBefore(now)) {
+                    api.setEnable(false);
+                    api.setExpireTime(null);
+                    api.setExpirable(false);
+                    isChange.set(true);
+                }
+            });
+        }
+
+        if (isChange.get()) {
+            userService.patch(user.getId(), user);
+        }
+
+        return isExpire;
     }
 }

@@ -4,13 +4,13 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.viescloud.llc.viesspringutils.config.jpa.BooleanConverter;
-import com.viescloud.llc.viesspringutils.config.jpa.DateTimeConverter;
-import com.viescloud.llc.viesspringutils.interfaces.annotation.Decoding;
-import com.viescloud.llc.viesspringutils.interfaces.annotation.Encoding;
-import com.viescloud.llc.viesspringutils.model.DecodingType;
-import com.viescloud.llc.viesspringutils.model.EncodingType;
-import com.viescloud.llc.viesspringutils.util.DateTime;
+import com.viescloud.eco.viesspringutils.config.jpa.BooleanConverter;
+import com.viescloud.eco.viesspringutils.config.jpa.DateTimeConverter;
+import com.viescloud.eco.viesspringutils.interfaces.annotation.Decoding;
+import com.viescloud.eco.viesspringutils.interfaces.annotation.Encoding;
+import com.viescloud.eco.viesspringutils.model.DecodingType;
+import com.viescloud.eco.viesspringutils.model.EncodingType;
+import com.viescloud.eco.viesspringutils.util.DateTime;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

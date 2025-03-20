@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.viescloud.eco.Authenticator.model.UserApi;
-import com.viescloud.llc.viesspringutils.util.Json;
+import com.viescloud.eco.viesspringutils.util.Json;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

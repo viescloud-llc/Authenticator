@@ -9,11 +9,11 @@ import org.springframework.web.server.ResponseStatusException;
 import com.viescloud.eco.Authenticator.dao.UserDao;
 import com.viescloud.eco.Authenticator.model.User;
 import com.viescloud.eco.Authenticator.util.JwtTokenUtil;
-import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
-import com.viescloud.llc.viesspringutils.util.DateTime;
-import com.viescloud.llc.viesspringutils.util.Json;
-import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
+import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
+import com.viescloud.eco.viesspringutils.util.DateTime;
+import com.viescloud.eco.viesspringutils.util.Json;
+import com.viescloud.eco.viesspringutils.util.Sha256PasswordEncoder;
 
 import lombok.extern.slf4j.Slf4j;
 

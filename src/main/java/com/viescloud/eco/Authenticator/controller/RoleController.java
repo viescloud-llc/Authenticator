@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.viescloud.eco.Authenticator.model.Role;
 import com.viescloud.eco.Authenticator.service.RoleService;
-import com.viescloud.llc.viesspringutils.controller.ViesController;
+import com.viescloud.eco.viesspringutils.controller.ViesController;
 
 @RestController
 @RequestMapping("/roles")

@@ -14,10 +14,10 @@ import com.viescloud.eco.Authenticator.model.User;
 import com.viescloud.eco.Authenticator.model.response.UsernameExistResponse;
 import com.viescloud.eco.Authenticator.service.JwtService;
 import com.viescloud.eco.Authenticator.service.UserService;
-import com.viescloud.llc.viesspringutils.controller.ViesController;
-import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.llc.viesspringutils.model.MatchByEnum;
-import com.viescloud.llc.viesspringutils.model.GenericPropertyMatcherEnum.PropertyMatcherEnum;
+import com.viescloud.eco.viesspringutils.controller.ViesController;
+import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.eco.viesspringutils.model.MatchByEnum;
+import com.viescloud.eco.viesspringutils.model.GenericPropertyMatcherEnum.PropertyMatcherEnum;
 
 import io.swagger.v3.oas.annotations.Operation;
 

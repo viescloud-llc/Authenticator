@@ -25,8 +25,8 @@ import com.viescloud.eco.Authenticator.model.openId.OpenIdRequest;
 import com.viescloud.eco.Authenticator.service.JwtService;
 import com.viescloud.eco.Authenticator.service.OpenIdService;
 import com.viescloud.eco.Authenticator.service.UserService;
-import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.llc.viesspringutils.util.ReflectionUtils;
+import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.eco.viesspringutils.util.ReflectionUtils;
 
 
 @RestController

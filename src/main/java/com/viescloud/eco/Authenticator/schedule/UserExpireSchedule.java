@@ -10,9 +10,9 @@ import org.springframework.util.ObjectUtils;
 
 import com.viescloud.eco.Authenticator.model.User;
 import com.viescloud.eco.Authenticator.service.UserService;
-import com.viescloud.llc.viesspringutils.util.Booleans;
-import com.viescloud.llc.viesspringutils.util.DateTime;
-import com.viescloud.llc.viesspringutils.util.MultiTask;
+import com.viescloud.eco.viesspringutils.util.Booleans;
+import com.viescloud.eco.viesspringutils.util.DateTime;
+import com.viescloud.eco.viesspringutils.util.MultiTask;
 
 @Configuration
 @EnableScheduling

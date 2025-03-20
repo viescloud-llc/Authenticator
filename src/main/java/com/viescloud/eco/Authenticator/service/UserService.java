@@ -13,10 +13,10 @@ import com.viescloud.eco.Authenticator.model.Role;
 import com.viescloud.eco.Authenticator.model.User;
 import com.viescloud.eco.Authenticator.model.openId.OpenIdUserInfoResponse;
 import com.viescloud.eco.Authenticator.schedule.UserExpireSchedule;
-import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
-import com.viescloud.llc.viesspringutils.service.ViesService;
-import com.viescloud.llc.viesspringutils.util.Sha256PasswordEncoder;
+import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
+import com.viescloud.eco.viesspringutils.service.ViesService;
+import com.viescloud.eco.viesspringutils.util.Sha256PasswordEncoder;
 
 import io.micrometer.common.util.StringUtils;
 

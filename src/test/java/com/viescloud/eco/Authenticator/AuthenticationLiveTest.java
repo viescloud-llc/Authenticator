@@ -10,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import com.viescloud.eco.Authenticator.model.Jwt;
 import com.viescloud.eco.Authenticator.model.User;
 import com.viescloud.eco.Authenticator.model.UserProfile;
-import com.viescloud.llc.viesspringutils.util.WebCall;
+import com.viescloud.eco.viesspringutils.util.WebCall;
 
 public class AuthenticationLiveTest {
     private final String baseUrl = "http://localhost:8081";

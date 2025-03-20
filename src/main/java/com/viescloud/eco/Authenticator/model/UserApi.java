@@ -2,9 +2,9 @@ package com.viescloud.eco.Authenticator.model;
 
 import java.io.Serializable;
 
-import com.viescloud.llc.viesspringutils.config.jpa.BooleanConverter;
-import com.viescloud.llc.viesspringutils.config.jpa.DateTimeConverter;
-import com.viescloud.llc.viesspringutils.util.DateTime;
+import com.viescloud.eco.viesspringutils.config.jpa.BooleanConverter;
+import com.viescloud.eco.viesspringutils.config.jpa.DateTimeConverter;
+import com.viescloud.eco.viesspringutils.util.DateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

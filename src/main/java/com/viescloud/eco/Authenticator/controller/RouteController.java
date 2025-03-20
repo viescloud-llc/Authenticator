@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.viescloud.eco.Authenticator.model.Route;
 import com.viescloud.eco.Authenticator.service.RouteService;
-import com.viescloud.llc.viesspringutils.controller.ViesController;
+import com.viescloud.eco.viesspringutils.controller.ViesController;
 
 import java.util.List;
 

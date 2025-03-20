@@ -4,8 +4,8 @@ import org.springframework.stereotype.Service;
 
 import com.viescloud.eco.Authenticator.dao.RoleDao;
 import com.viescloud.eco.Authenticator.model.Role;
-import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
-import com.viescloud.llc.viesspringutils.service.ViesService;
+import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
+import com.viescloud.eco.viesspringutils.service.ViesService;
 
 @Service
 public class RoleService extends ViesService<Long, Role, RoleDao> {

@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import com.viescloud.eco.Authenticator.dao.RouteDao;
 import com.viescloud.eco.Authenticator.model.Role;
 import com.viescloud.eco.Authenticator.model.Route;
-import com.viescloud.llc.viesspringutils.repository.DatabaseCall;
-import com.viescloud.llc.viesspringutils.service.ViesService;
+import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
+import com.viescloud.eco.viesspringutils.service.ViesService;
 
 @Service
 public class RouteService extends ViesService<Long, Route, RouteDao> {

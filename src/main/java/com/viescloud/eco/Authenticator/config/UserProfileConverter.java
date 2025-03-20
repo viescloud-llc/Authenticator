@@ -1,7 +1,7 @@
 package com.viescloud.eco.Authenticator.config;
 
 import com.viescloud.eco.Authenticator.model.UserProfile;
-import com.viescloud.llc.viesspringutils.util.Json;
+import com.viescloud.eco.viesspringutils.util.Json;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

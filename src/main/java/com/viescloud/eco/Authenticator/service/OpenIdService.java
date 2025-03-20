@@ -17,8 +17,8 @@ import org.springframework.web.client.RestTemplate;
 import com.viescloud.eco.Authenticator.model.openId.OpenIdAccessTokenResponse;
 import com.viescloud.eco.Authenticator.model.openId.OpenIdRequest;
 import com.viescloud.eco.Authenticator.model.openId.OpenIdUserInfoResponse;
-import com.viescloud.llc.viesspringutils.exception.HttpResponseThrowers;
-import com.viescloud.llc.viesspringutils.util.WebCall;
+import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
+import com.viescloud.eco.viesspringutils.util.WebCall;
 
 @Service
 public class OpenIdService {

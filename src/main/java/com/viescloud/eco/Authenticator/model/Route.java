@@ -3,7 +3,7 @@ package com.viescloud.eco.Authenticator.model;
 import java.io.Serializable;
 import java.util.List;
 
-import com.viescloud.llc.viesspringutils.config.jpa.BooleanConverter;
+import com.viescloud.eco.viesspringutils.config.jpa.BooleanConverter;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import org.springframework.stereotype.Component;
 
+import com.viescloud.eco.Authenticator.config.ApplicationProperties;
 import com.viescloud.eco.Authenticator.model.User;
 
 import java.util.Date;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -23,8 +24,8 @@ public class JwtTokenUtil implements Serializable
 
 	public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
-	@Value("${jwt.secret}")
-	private String secret;
+	@Autowired
+	private ApplicationProperties applicationProperties;
 
 	//retrieve username from jwt token
 	public String getUsernameFromToken(String token) {
@@ -47,7 +48,7 @@ public class JwtTokenUtil implements Serializable
 	}
     //for retrieving any information from token we will need the secret key
 	private Claims getAllClaimsFromToken(String token) {
-		return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+		return Jwts.parser().setSigningKey(applicationProperties.getJwtSecret()).parseClaimsJws(token).getBody();
 	}
 
 	//check if the token has expired
@@ -74,7 +75,7 @@ public class JwtTokenUtil implements Serializable
 				.setSubject(subject)
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				// .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-				.signWith(SignatureAlgorithm.HS512, secret).compact();
+				.signWith(SignatureAlgorithm.HS512, applicationProperties.getJwtSecret()).compact();
 	}
 
 	private String doGenerateToken(Map<String, Object> claims, User user) {
@@ -84,7 +85,7 @@ public class JwtTokenUtil implements Serializable
 				.setSubject(user.getUsername())
 				.setIssuedAt(new Date(System.currentTimeMillis()))
 				// .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-				.signWith(SignatureAlgorithm.HS512, secret).compact();
+				.signWith(SignatureAlgorithm.HS512, applicationProperties.getJwtSecret()).compact();
 	}
 
 	//validate token

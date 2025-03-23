@@ -11,25 +11,78 @@ import com.viescloud.eco.Authenticator.dao.RoleDao;
 import com.viescloud.eco.Authenticator.dao.UserDao;
 import com.viescloud.eco.Authenticator.model.Role;
 import com.viescloud.eco.Authenticator.model.User;
+import com.viescloud.eco.Authenticator.model.UserProfile;
 import com.viescloud.eco.Authenticator.model.openId.OpenIdUserInfoResponse;
 import com.viescloud.eco.Authenticator.schedule.UserExpireSchedule;
 import com.viescloud.eco.viesspringutils.exception.HttpResponseThrowers;
 import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
 import com.viescloud.eco.viesspringutils.service.ViesService;
+import com.viescloud.eco.viesspringutils.util.ReflectionUtils;
 import com.viescloud.eco.viesspringutils.util.Sha256PasswordEncoder;
 
 import io.micrometer.common.util.StringUtils;
+import jakarta.annotation.PostConstruct;
 
 @Service
 public class UserService extends ViesService<Long, User, UserDao>
 {
+    public static final String OWNER = "OWNER";
+    public static final String CO_OWNER = "CO-OWNER";
+    public static final String ADMIN = "ADMIN";
     public static final String NORMAL = "NORMAL";
+    public static final String GUESS = "GUESS";
+    public static final String[] ROLES = {OWNER, CO_OWNER, ADMIN, NORMAL, GUESS};
 
     @Autowired
     private RoleDao roleDao;
 
     public UserService(DatabaseCall<Long, User> databaseUtils, UserDao repositoryDao) {
         super(databaseUtils, repositoryDao);
+    }
+
+    @PostConstruct
+    public void init() {
+        var roles = this.repositoryDao.findAll();
+
+        if (roles == null || roles.isEmpty()) {
+            for (int i = 0; i < ROLES.length; i++) {
+                String role = ROLES[i];
+                Role newRole = new Role();
+                newRole.setId(0L);
+                if (role.equals(GUESS)) {
+                    newRole.setLevel(0);
+                }
+                else {
+                    newRole.setLevel(100 - (i * 20));
+                }
+                newRole.setName(role);
+                this.roleDao.save(newRole);
+            }
+        }
+
+        var users = this.repositoryDao.findAll();
+
+        if (users == null || users.isEmpty()) {
+            var adminRole = this.roleDao.findByName(OWNER);
+
+            User user = new User();
+            user.setId(0L);
+            user.setUsername(OWNER);
+            user.setPassword(OWNER);
+            user.setName("Owner");
+            user.setEnable(true);
+            user.setUserRoles(List.of(adminRole));
+            
+            UserProfile userProfile = new UserProfile();
+            userProfile.setFirstName(OWNER);
+            userProfile.setLastName(OWNER);
+            userProfile.setAlias("Default Owner");
+            user.setUserProfile(userProfile);
+
+            user = ReflectionUtils.encodingObject(user);
+
+            this.repositoryDao.save(user);
+        }
     }
 
     public long getMaxId()

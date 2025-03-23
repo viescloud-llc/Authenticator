@@ -9,7 +9,7 @@ import com.viescloud.eco.viesspringutils.service.ViesService;
 
 @Service
 public class RoleService extends ViesService<Long, Role, RoleDao> {
-
+    
     public RoleService(DatabaseCall<Long, Role> databaseCall, RoleDao roleDao) {
         super(databaseCall, roleDao);
     }

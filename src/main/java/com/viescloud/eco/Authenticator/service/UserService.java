@@ -19,6 +19,7 @@ import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
 import com.viescloud.eco.viesspringutils.service.ViesService;
 import com.viescloud.eco.viesspringutils.util.ReflectionUtils;
 import com.viescloud.eco.viesspringutils.util.Sha256PasswordEncoder;
+import com.viescloud.eco.viesspringutils.util.Streams;
 
 import io.micrometer.common.util.StringUtils;
 import jakarta.annotation.PostConstruct;
@@ -106,7 +107,7 @@ public class UserService extends ViesService<Long, User, UserDao>
     public boolean isUsernameExist(String username)
     {   
         List<User> users = repositoryDao.findAllByUsername(username);
-        return users != null && users.parallelStream().anyMatch(user -> user.getUsername().equals(username));
+        return users != null && Streams.stream(users).anyMatch(user -> user.getUsername().equals(username));
     }
 
     private void isUsernameExist(Long id, User user) {
@@ -162,15 +163,14 @@ public class UserService extends ViesService<Long, User, UserDao>
 
     public User login(User user)
     {
-        var dbUser = this.repositoryDao.findAllByUsername(user.getUsername())
-                                       .parallelStream()
-                                       .filter(e -> {
-                                            var matchPassword = e.getUsername().equals(user.getUsername()) && e.getPassword().equals(user.getPassword());
-                                            var matchApiKey = e.getUserApis() != null && e.getUserApis().parallelStream().anyMatch(api -> api.getApiKey() != null && api.getApiKey().equals(user.getPassword()));
-                                            return matchPassword || matchApiKey;
-                                        })
-                                       .findFirst()
-                                       .orElseThrow(HttpResponseThrowers.throwConflictException("Invalid username or password"));
+        var dbUser = Streams.stream(this.repositoryDao.findAllByUsername(user.getUsername())) 
+                            .filter(e -> {
+                                var matchPassword = e.getUsername().equals(user.getUsername()) && e.getPassword().equals(user.getPassword());
+                                var matchApiKey = e.getUserApis() != null && Streams.stream(e.getUserApis()).anyMatch(api -> api.getApiKey() != null && api.getApiKey().equals(user.getPassword()));
+                                return matchPassword || matchApiKey;
+                            })
+                            .findFirst()
+                            .orElseThrow(HttpResponseThrowers.throwConflictException("Invalid username or password"));
         
         if(UserExpireSchedule.isUserExpire(dbUser, this)) {
             return (User) HttpResponseThrowers.throwForbidden("User is expire/lock, please contact administration");
@@ -239,14 +239,12 @@ public class UserService extends ViesService<Long, User, UserDao>
         this.databaseCall.deleteByKey(id);
     }
 
-    public boolean hasAnyAuthority(User user, List<String> roles)
-    {
-        return user.getUserRoles().parallelStream().anyMatch((ur) -> roles.parallelStream().anyMatch(r -> ur.getName().equals(r)));
+    public boolean hasAnyAuthority(User user, List<String> roles) {
+        return Streams.anyMatchAny(user.getUserRoles(), roles, (ur, r) -> ur.getName().equals(r));
     }
     
-    public boolean hasAllAuthority(User user, List<String> roles)
-    {
-        return roles.stream().allMatch(r -> user.getUserRoles().parallelStream().anyMatch(ur -> ur.getName().equals(r)));
+    public boolean hasAllAuthority(User user, List<String> roles) {
+        return Streams.allMatchAny(roles, user.getUserRoles(), (r, ur) -> ur.getName().equals(r));
     }
 
     @Override

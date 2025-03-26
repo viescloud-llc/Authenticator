@@ -12,6 +12,7 @@ import com.viescloud.eco.Authenticator.model.Role;
 import com.viescloud.eco.Authenticator.model.Route;
 import com.viescloud.eco.viesspringutils.repository.DatabaseCall;
 import com.viescloud.eco.viesspringutils.service.ViesService;
+import com.viescloud.eco.viesspringutils.util.Streams;
 
 @Service
 public class RouteService extends ViesService<Long, Route, RouteDao> {
@@ -38,7 +39,7 @@ public class RouteService extends ViesService<Long, Route, RouteDao> {
             List<Role> userRoles = route.getRoles();
             List<Role> assignRoles = new ArrayList<>();
             userRoles.forEach(r -> {
-                List<Role> foundedRoles = roles.parallelStream().filter(e -> e.getName().equals(r.getName())).collect(Collectors.toList());
+                List<Role> foundedRoles = Streams.stream(roles).filter(e -> e.getName().equals(r.getName())).collect(Collectors.toList());
                 if(foundedRoles.size() > 0) {
                     assignRoles.add(foundedRoles.get(0));
                 }
@@ -51,7 +52,7 @@ public class RouteService extends ViesService<Long, Route, RouteDao> {
             });
             route.setRoles(assignRoles);
 
-            List<Route> foundedRoutes = currentRoutes.parallelStream().filter(e -> e.getPath().equals(route.getPath()) && e.getMethod().equals(route.getMethod())).collect(Collectors.toList());
+            List<Route> foundedRoutes = Streams.stream(currentRoutes).filter(e -> e.getPath().equals(route.getPath()) && e.getMethod().equals(route.getMethod())).collect(Collectors.toList());
             if(foundedRoutes.size() > 0) {
                 Route foundedRoute = foundedRoutes.get(0);
                 this.put(foundedRoute.getId(), route);
@@ -61,7 +62,7 @@ public class RouteService extends ViesService<Long, Route, RouteDao> {
                 this.post(route);
         });
 
-        currentRoutes.parallelStream().forEach(e -> this.delete(e.getId()));
+        Streams.stream(currentRoutes).forEach(e -> this.delete(e.getId()));
 
         return this.getAll();
     }

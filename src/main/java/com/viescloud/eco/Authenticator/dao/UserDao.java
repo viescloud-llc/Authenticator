@@ -7,8 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.viescloud.eco.Authenticator.model.User;
 
-public interface UserDao extends JpaRepository<User, Long>
-{
+public interface UserDao extends JpaRepository<User, Long> {
 	public User findBySub(String sub);
 	public List<User> findAllBySub(String sub);
 
